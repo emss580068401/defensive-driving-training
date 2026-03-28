@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全駕駛學習網 (全功能版)</title>
+    <link rel="stylesheet" href="css/style.css?v=21">
+    <!-- 備援與極大化樣式 -->
+    <style>
+        .habits-toggle { display: flex; justify-content: center; gap: 20px; margin: 2.5rem 0; width: 100%; }
+        button.btn-toggle { 
+            background: #1e293b !important; border: 4px solid #1e40af !important; color: #fff !important; 
+            padding: 1.8rem 3.5rem !important; border-radius: 20px !important; font-size: 2rem !important; 
+            font-weight: 900 !important; cursor: pointer; flex: 1; max-width: 500px;
+            transition: all 0.3s ease; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        button.btn-toggle.active { 
+            background: #f97316 !important; border-color: #fff !important; 
+            box-shadow: 0 0 30px rgba(249, 115, 22, 0.8) !important; transform: scale(1.05);
+        }
+        .flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    </style>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Confetti for Certificate -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="dark-theme">
+    <!-- Progress Bar -->
+    <div id="top-progress-container">
+        <div id="top-progress-bar"></div>
+    </div>
+
+    <!-- Background Music Toggle -->
+    <div id="music-control">
+        <button id="toggle-music" class="btn-icon">
+            <i class="fas fa-volume-mute" id="music-icon"></i>
+        </button>
+        <audio id="bg-audio" loop>
+            <source src="audio/The_High_Pass.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <div class="header-logo">
+                <i class="fas fa-shield-halved text-accent"></i>
+                <h1>安全駕駛 <span class="text-accent">學習網</span></h1>
+            </div>
+            <nav class="desktop-nav">
+                <button class="nav-btn active" data-tab="skills">
+                    <i class="fas fa-car-side"></i> 駕駛技巧
+                </button>
+                <button class="nav-btn" data-tab="habits">
+                    <i class="fas fa-user-check"></i> 20+10 習慣
+                </button>
+                <button class="nav-btn" data-tab="deployment">
+                    <i class="fas fa-map-location-dot"></i> 現場部署
+                </button>
+                <button class="nav-btn" data-tab="quiz">
+                    <i class="fas fa-clipboard-question"></i> 自我檢測
+                </button>
+            </nav>
+        </header>
+
+        <!-- Content Area -->
+        <main id="content-area">
+            <!-- Tabs will be rendered here via JS -->
+            <section id="tab-skills" class="tab-content active">
+                <div class="section-title">
+                    <h2><i class="fas fa-video"></i> 防禦駕駛技巧 <small class="badge">實作影片整合</small></h2>
+                    <p>掌握核心駕駛技術，預防內輪差與視覺死角。</p>
+                </div>
+                <div class="video-gallery">
+                    <!-- Video cards will be injected here -->
+                </div>
+                <div class="content-cards">
+                    <div class="info-card">
+                        <h3><i class="fas fa-turn-down"></i> 左轉不切 (左轉大彎)</h3>
+                        <p>禁止 S 型轉彎（先向右再向左），應保持車身平正進入路口中心點後再轉向，以縮小視覺死角。</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-door-closed"></i> 右轉關門</h3>
+                        <p>右轉前應提早靠右，縮小車身右側與路緣之空隙，防止機車鑽入內輪差危險區域。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-habits" class="tab-content">
+                <div class="section-title">
+                    <h2><i class="fas fa-list-check"></i> 防禦駕駛習慣 20+10</h2>
+                    <p>精選 20 項平時行車習慣與 10 項緊急車輛習慣。</p>
+                </div>
+                <!-- Habit interaction will be here -->
+                <div class="habits-container">
+                    <div class="habits-toggle">
+                        <button id="show-basic" class="btn-toggle active">20 項平時行車習慣</button>
+                        <button id="show-tactical" class="btn-toggle">10 項緊急車輛習慣</button>
+                    </div>
+                    <div id="habits-list" class="flip-grid">
+                        <!-- Habit flip cards injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-deployment" class="tab-content">
+                <div class="section-title">
+                    <h2><i class="fas fa-route"></i> 國道直線部屬戰術</h2>
+                    <p>嚴禁橫跨車道！車輛與標誌應沿同一車道成一直線排列。</p>
+                </div>
+
+                <!-- 距離切換按鈕 -->
+                <div class="deployment-toggle">
+                    <button class="deploy-btn active" data-dist="15">快速道路 (15m)</button>
+                    <button class="deploy-btn" data-dist="25">高速公路 (25m)</button>
+                </div>
+
+                <!-- 警察狀態切換 (新增) -->
+                <div class="deployment-status-toggle">
+                    <button class="deploy-btn active status-btn" data-status="arrived">警察已抵達</button>
+                    <button class="deploy-btn status-btn" data-status="pending">警察尚未抵達</button>
+                </div>
+
+                <div class="linear-deployment-track" id="deployment-track">
+                    <!-- 道路虛線 -->
+                    <div class="road-dashed-line"></div>
+                    
+                    <!-- 車流方向指示 -->
+                    <div class="flow-indicator">車流方向 <i class="fas fa-chevron-right"></i></div>
+
+                    <!-- 戰術鏈容器 -->
+                    <div class="tactical-chain">
+                        <!-- 1. 交通錐 -->
+                        <div class="tactical-node cone-node" data-info="先期警示區：閃爍伸縮三角錐。">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <span>三角錐</span>
+                        </div>
+
+                        <!-- 間距 -->
+                        <div class="distance-label"><span class="dist-val">15</span>m</div>
+
+                        <!-- 2. 救災車 (11車-Fend-off) -->
+                        <div class="tactical-node engine-node fent-off" data-info="上游緩衝區：救災車 (Fend-off 斜停)。車頭朝外 15-45 度引導能偏。">
+                            <div class="vehicle-box">救災車</div>
+                            <span>上游緩衝</span>
+                        </div>
+
+                        <!-- 間距 -->
+                        <div class="distance-label"><span class="dist-val">15</span>m</div>
+
+                        <!-- 3. 中游節點 (警車或救護車) -->
+                        <div id="node-middle" class="tactical-node" data-info="警車：協同防禦，停放於救災車與事故車之間。">
+                            <div class="vehicle-box" id="vehicle-middle">警車</div>
+                            <span id="label-middle">警車</span>
+                        </div>
+
+                        <!-- 間距 -->
+                        <div class="distance-label"><span class="dist-val">15</span>m</div>
+
+                        <!-- 4. 事故車 (作業區) -->
+                        <div class="tactical-node incident-node" data-info="救援作業區：事故車輛與人員作業核心。">
+                            <div class="vehicle-box rotate-12">事故車</div>
+                            <span>作業區</span>
+                        </div>
+
+                        <!-- 間距 -->
+                        <div class="distance-label"><span class="dist-val">15</span>m</div>
+
+                        <!-- 5. 下游節點 (僅警察抵達時顯示救護車) -->
+                        <div id="node-downstream" class="tactical-node" data-info="下游待命區：救護車。確保後送動線暢通。">
+                            <div class="vehicle-box">救護車</div>
+                            <span>下游待命</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deployment-info-box" class="info-box mt-4">
+                    點擊各戰術節點 (圖標或車輛) 查看詳細部署要領。
+                </div>
+
+                <!-- 戰術核心指南 (Tactical Deep Dive) -->
+                <div class="tactical-deep-dive mt-5">
+                    <h3 class="section-subtitle mb-4"><i class="fas fa-book-reader"></i> 戰術核心指南 (Tactical Deep Dive)</h3>
+                    <div class="deep-dive-grid">
+                        <div class="tactical-item">
+                            <img src="images/deploy/31.png" alt="TIMA 空間解構">
+                            <div class="item-overlay"><span>01. TIMA 空間解構</span></div>
+                        </div>
+                        <div class="tactical-item">
+                            <img src="images/deploy/32.png" alt="防護比例尺">
+                            <div class="item-overlay"><span>02. 防護比例尺</span></div>
+                        </div>
+                        <div class="tactical-item">
+                            <img src="images/deploy/33.png" alt="15-45度斜停法則">
+                            <div class="item-overlay"><span>03. 15-45度斜停法則</span></div>
+                        </div>
+                        <div class="tactical-item">
+                            <img src="images/deploy/34.png" alt="物理力學效應">
+                            <div class="item-overlay"><span>04. 物理力學效應</span></div>
+                        </div>
+                        <div class="tactical-item">
+                            <img src="images/deploy/35.png" alt="微觀防禦鎖定">
+                            <div class="item-overlay"><span>05. 微觀防禦鎖定</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-quiz" class="tab-content">
+                <!-- Quiz Area -->
+                <div id="quiz-intro">
+                    <div class="quiz-card-header">
+                        <h2><i class="fas fa-trophy"></i> 互動測驗與數位證書</h2>
+                        <p>共 30 題，系統隨機選取 5 題。測驗達 80 分可領取專業證書！</p>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="user-name" placeholder="輸入您的姓名 (用於證書)" maxlength="15">
+                        <button id="start-quiz-btn" class="btn-primary">開始挑戰</button>
+                    </div>
+                </div>
+                <div id="quiz-engine" style="display:none;">
+                    <div class="quiz-progress-wrapper">
+                        <div id="quiz-step-text">第 1 / 5 題</div>
+                        <div class="progress-bar-bg"><div id="quiz-progress-inner"></div></div>
+                    </div>
+                    <div id="question-container">
+                        <!-- Question content injected here -->
+                    </div>
+                </div>
+                <div id="quiz-result" style="display:none;">
+                    <!-- Result & Certificate will be here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="mobile-nav">
+            <button class="mobile-nav-btn active" data-tab="skills">
+                <i class="fas fa-car-side"></i>
+                <span>技巧</span>
+            </button>
+            <button class="mobile-nav-btn" data-tab="habits">
+                <i class="fas fa-user-check"></i>
+                <span>習慣</span>
+            </button>
+            <button class="mobile-nav-btn" data-tab="deployment">
+                <i class="fas fa-map-location-dot"></i>
+                <span>部署</span>
+            </button>
+            <button class="mobile-nav-btn" data-tab="quiz">
+                <i class="fas fa-clipboard-question"></i>
+                <span>測驗</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Certificate Template (Hidden) -->
+    <div id="certificate-template" style="display:none;">
+        <div class="certificate-canvas">
+            <div class="cert-border">
+                <div class="cert-content">
+                    <div class="cert-header">
+                        <i class="fas fa-award"></i>
+                        <h2>學習完賽證書</h2>
+                    </div>
+                    <p class="cert-body">茲證明</p>
+                    <h3 id="cert-name">[學員姓名]</h3>
+                    <p class="cert-text">已成功完成全模塊安全駕駛訓練</p>
+                    <div class="cert-rank">
+                        <span>榮譽等級：</span>
+                        <strong id="cert-level">防禦駕駛專家</strong>
+                    </div>
+                    <div class="cert-footer">
+                        <div class="cert-date" id="cert-date">2026-03-28</div>
+                        <div class="cert-stamp">安全駕駛<br>認證章</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 點擊放大燈箱 (Lightbox) -->
+    <div id="lightbox" class="lightbox-overlay">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="戰術圖解全銀幕預覽">
+    </div>
+
+    <script src="js/questions.js"></script>
+    <script src="js/app.js?v=21"></script>
+</body>
+</html>
