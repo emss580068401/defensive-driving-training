@@ -93,6 +93,26 @@ header {
     font-size: 1.8rem;
 }
 
+.title-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.sub-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
+}
+
+.header-logo h1 {
+    font-size: 1.6rem;
+    line-height: 1.1;
+    margin: 0;
+}
+
 .text-accent { color: var(--accent); }
 
 .desktop-nav {
@@ -721,31 +741,42 @@ button.btn-toggle.active {
 
 /* --- 響應式調整 --- */
 @media (max-width: 768px) {
-    header { padding: 1rem; }
+    header { padding: 0.6rem 1rem; }
+    .header-logo { gap: 8px; }
+    .header-logo i { font-size: 1.4rem; }
+    .sub-title { font-size: 0.7rem; }
+    .header-logo h1 { font-size: 1.15rem; }
+
     .desktop-nav { display: none; }
-    .section-title h2 { font-size: 1.4rem; }
-    main { padding: 1rem; padding-bottom: 80px; }
+    .section-title { margin-bottom: 1rem; padding-left: 0.8rem; }
+    .section-title h2 { font-size: 1.25rem; }
+    .section-title p { font-size: 0.9rem; }
+
+    main { padding: 0.75rem; padding-bottom: 80px; }
     .input-group { flex-direction: column; }
     .deployment-scene { height: 250px; }
     
     /* Mobile specific UX improvements */
-    .habits-toggle { flex-direction: column; gap: 15px; margin: 1.5rem 0; }
-    button.btn-toggle { font-size: 1.25rem; padding: 1rem; width: 100%; border-width: 2px; border-radius: 12px; }
+    .habits-toggle { flex-direction: row; gap: 8px; margin: 1rem 0; }
+    button.btn-toggle { font-size: 0.95rem; padding: 0.6rem 0.2rem; width: auto; flex: 1; border-width: 2px; border-radius: 12px; min-width: 0; word-break: keep-all; }
     .flip-grid { grid-template-columns: 1fr; gap: 1.25rem; }
-    .flip-card-front h3 { font-size: 1.2rem; }
+    .flip-card-front h3 { font-size: 1.1rem; }
     
-    .deployment-toggle, .deployment-status-toggle { flex-wrap: wrap; gap: 10px; }
-    .deploy-btn { flex: 1; min-width: 140px; font-size: 0.95rem; padding: 0.8rem; text-align: center; }
+    .deployment-toggle, .deployment-status-toggle { flex-wrap: wrap; gap: 8px; }
+    .deploy-btn { flex: 1; min-width: 130px; font-size: 0.9rem; padding: 0.7rem; text-align: center; }
     
-    .linear-deployment-track { padding: 0 10px; height: 180px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .linear-deployment-track { padding: 0 10px; height: 160px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .tactical-chain { min-width: 600px; } /* Allows horizontal scroll */
-    .vehicle-box { font-size: 0.85rem; padding: 6px 8px; }
-    .tactical-node i { font-size: 2rem; }
-    .flow-indicator { font-size: 0.9rem; top: 10px; right: 10px; }
-    .distance-label { font-size: 1rem; }
+    .vehicle-box { font-size: 0.85rem; padding: 5px 8px; }
+    .tactical-node i { font-size: 1.8rem; }
+    .flow-indicator { font-size: 0.85rem; top: 8px; right: 10px; }
+    .distance-label { font-size: 0.9rem; }
     
-    .info-box { font-size: 1.1rem; padding: 1.2rem; border-left-width: 6px; }
-    .gallery-title, .section-subtitle { font-size: 1.3rem; }
+    .info-box { font-size: 1.05rem; padding: 1rem; border-left-width: 4px; }
+    .gallery-title, .section-subtitle { font-size: 1.2rem; }
+    .info-card { padding: 1.2rem; margin-top: 0.8rem; }
+    .info-card h3 { font-size: 1.05rem; }
+    .info-card p { font-size: 0.9rem; }
 }
 
 @media (min-width: 769px) {
