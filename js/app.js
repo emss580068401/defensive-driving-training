@@ -612,11 +612,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function snapBack(card, list) {
             card.classList.add('is-animating');
-            var visualIdx = Array.from(list.children).indexOf(card);
-            var realIdx = list.children.length - 1 - visualIdx;
-            var s = 1 - (realIdx * 0.05);
-            var ty = realIdx * 15;
-            card.style.transform = 'translateY(' + ty + 'px) scale(' + s + ')';
+            updateDeckStyles();
+            setTimeout(function() {
+                card.classList.remove('is-animating');
+            }, 350);
         }
 
         function updateDeckStyles() {
@@ -644,6 +643,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.transform = 'translateY(' + ty + 'px) scale(' + s + ')';
                 if (visualIndex > 3) card.style.opacity = '0';
                 else card.style.opacity = '1';
+
+                // 新增：動畫結束後移除類別，解鎖點擊放大功能
+                setTimeout(function() {
+                    card.classList.remove('is-animating');
+                }, 350);
 
                 var counter = card.querySelector('.habits-counter');
                 if (counter) counter.innerText = '(剩餘 ' + habitDeck.length + ' 張)';
