@@ -47,11 +47,162 @@ document.addEventListener('DOMContentLoaded', function() {
         if (bar) bar.style.width = totalScore + "%";
     }
 
+    // --- 音訊系統與解鎖機制 (AudioContext Unlock for Mobile) ---
+    var audioCtx = null;
+    function getAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
+    }
+
+    // 手機端第一次點擊後即解鎖 AudioContext
+    function unlockAudio() {
+        var ctx = getAudioCtx();
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(function() {
+                console.log("AudioContext Unlocked");
+                document.removeEventListener('touchstart', unlockAudio);
+                document.removeEventListener('mousedown', unlockAudio);
+            });
+        } else {
+            document.removeEventListener('touchstart', unlockAudio);
+            document.removeEventListener('mousedown', unlockAudio);
+        }
+    }
+    document.addEventListener('touchstart', unlockAudio, { passive: true });
+    document.addEventListener('mousedown', unlockAudio, { passive: true });
+
     // 內嵌清脆點擊音效 (Base64)
     var clickAudio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTdvT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT18=');
     function playClickSound() {
         clickAudio.currentTime = 0;
         clickAudio.play().catch(function() {});
+    }
+
+    // 懸停音效 (精緻電子音)
+    function playHoverSound() {
+        try {
+            var ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.06, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.05);
+        } catch(e) {}
+    }
+
+    // 滑動音效 (劃過風聲)
+    function playSwipeSound() {
+        try {
+            var ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            var bufferSize = ctx.sampleRate * 0.15;
+            var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            var data = buffer.getChannelData(0);
+            for (var i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+            var noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            var filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2500, ctx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.15);
+            var gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            noise.start();
+        } catch(e) {}
+    }
+
+    // 放置音效 (沉穩的重音)
+    function playDropSound() {
+        try {
+            var ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.7, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
+        } catch(e) {}
+    }
+
+    // 成功音效 (明亮的快節奏三連音)
+    function playSuccessSound() {
+        try {
+            var ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            var now = ctx.currentTime;
+            [523.25, 659.25, 783.99].forEach(function(freq, i) {
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                gain.gain.setValueAtTime(0, now + i * 0.08);
+                gain.gain.linearRampToValueAtTime(0.3, now + i * 0.08 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + i * 0.08);
+                osc.stop(now + i * 0.08 + 0.3);
+            });
+        } catch(e) {}
+    }
+
+    // 失敗音效 (沉重的低頻警告音)
+    function playFailureSound() {
+        try {
+            var ctx = getAudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            var now = ctx.currentTime;
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        } catch(e) {}
+    }
+
+    // 全域懸停音效委派 (進入與離開邊框均觸發)
+    function initHoverSounds() {
+        var hoverSelector = 'button, .nav-btn, .mobile-nav-btn, .btn-toggle, .deploy-btn, ' +
+                           '.btn-primary, .option-btn, .tactical-node, .swipe-card, ' +
+                           '.video-card, .info-card, .dashboard-card, .tactical-item, ' +
+                           '.vehicle-box, .btn-icon, .badge-item';
+        
+        document.body.addEventListener('mouseenter', function(e) {
+            if (e.target.matches && e.target.matches(hoverSelector)) {
+                playHoverSound();
+            }
+        }, true);
+        
+        document.body.addEventListener('mouseleave', function(e) {
+            if (e.target.matches && e.target.matches(hoverSelector)) {
+                playHoverSound();
+            }
+        }, true);
     }
 
     var HEADING_20 = [
@@ -158,6 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initLightbox();
     initBackToTop();
     initKeyboardNav();
+    initHoverSounds();
 
     // 等待 deferred 依賴
     waitForDeps(function() {
@@ -405,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     '<div class="habits-counter" style="color:#94a3b8; margin-bottom:10px;">(剩餘 ' + habitDeck.length + ' 張)</div>' +
                     '<img src="' + item.img + '" alt="' + escapeHTML(item.title) + '" style="width:90%; max-height: 80%; object-fit:contain; border-radius:15px; pointer-events:none; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" loading="lazy">' +
                     '<h3>' + escapeHTML(item.title) + '</h3>' +
-                    '<p style="color:#94a3b8; margin-top:auto;"><i class="fas fa-arrows-alt-h"></i> 右滑=熟記 | 左滑=複習 | ← → 鍵</p>' +
+                    '<p style="color:#94a3b8; margin-top:auto;"><i class="fas fa-search-plus"></i> 點擊放大 | <i class="fas fa-arrows-alt-h"></i> 滑動=熟記/複習 | ← → 鍵</p>' +
                 '</div>';
 
             // Hammer.js swipe
@@ -423,6 +575,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         snapBack(card, list);
                     }
                 });
+
+                // 新增：點擊卡片彈出燈箱 (嚴格限制位移，只有近乎置中且未滑動時觸發)
+                hammer.on('tap', function(e) {
+                    // e.distance 是總位移像素
+                    if (e.distance < 10 && !card.classList.contains('is-animating')) {
+                        openLightboxWithItem(item);
+                    }
+                });
             }
             return card;
         }
@@ -431,6 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.classList.add('is-animating');
             card.style.transform = 'translateX(' + (direction * 600) + 'px) rotate(' + (direction * 30) + 'deg)';
             card.style.opacity = '0';
+            playSwipeSound();
             setTimeout(function() {
                 if (card.parentNode) card.parentNode.removeChild(card);
                 if (direction > 0) {
@@ -659,13 +820,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 group: 'challenge',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
-                onEnd: function() { checkWin(); }
+                onEnd: function() { playDropSound(); checkWin(); }
             });
             trackSortable = new Sortable(track, {
                 group: 'challenge',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
-                onEnd: function() { checkWin(); }
+                onEnd: function() { playDropSound(); checkWin(); }
             });
         }
 
@@ -683,13 +844,13 @@ document.addEventListener('DOMContentLoaded', function() {
             var isCorrect = (currentOrder.length === correctPattern.length) && currentOrder.every(function(val, index) { return val === correctPattern[index]; });
 
             if (isCorrect) {
-                playClickSound();
+                playSuccessSound();
                 if (typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
                 cInfo.innerHTML = '<strong style="color:var(--success)">🎉 挑戰成功！恭喜您完成了正確陣型！</strong>';
                 cInfo.style.borderColor = 'var(--success)';
                 if (!trackedProgress.deploy) { trackedProgress.deploy = 1; saveProgress(); }
             } else {
-                playClickSound();
+                playFailureSound();
                 cInfo.innerHTML = '<strong style="color:var(--warning)">⚠️ 順序有誤！請調整軌道上車輛的前後順序（例如：最前頭應擺放三角錐）！</strong>';
                 cInfo.style.borderColor = 'var(--warning)';
             }
@@ -781,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
         categoryMax[cat] = (categoryMax[cat] || 0) + 1;
 
         if (selected === correct) {
-            playClickSound();
+            playSuccessSound();
             btns[selected].classList.add('correct');
             btns[selected].setAttribute('aria-checked', 'true');
             score += 20;
@@ -789,7 +950,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showScoreFly();
             if (typeof confetti !== 'undefined') confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
         } else {
-            playClickSound();
+            playFailureSound();
             btns[selected].classList.add('wrong');
             btns[correct].classList.add('correct');
         }
@@ -924,6 +1085,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 音效邏輯 ---
     function initAudio() {
         var audio = document.getElementById('bg-audio');
+        if (audio) audio.volume = 0.4; // 降低背景音樂音量
+
         var icon = document.getElementById('music-icon');
         var btn = document.getElementById('toggle-music');
         if (!btn) return;
@@ -950,11 +1113,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var triggerElement = null;
 
+        // 全域點擊委派
         document.addEventListener('click', function(e) {
             var tacticalItem = e.target.closest('.tactical-item');
             var habitBack = e.target.closest('.flip-card-back');
+            var swipeCard = e.target.closest('.swipe-card'); // 20+10 卡片
 
-            if (tacticalItem || habitBack) {
+            // 只有當卡片未處於動畫中且未大量位移時才允許點擊觸發
+            if (tacticalItem || habitBack || (swipeCard && !swipeCard.classList.contains('is-animating'))) {
                 var src = '';
                 if (tacticalItem) {
                     var img = tacticalItem.querySelector('img');
@@ -962,19 +1128,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (habitBack) {
                     var bg = window.getComputedStyle(habitBack).backgroundImage;
                     src = bg.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+                } else if (swipeCard) {
+                    // 如果卡片已經位移超過 10px，則不視為純粹點擊
+                    var transform = window.getComputedStyle(swipeCard).transform;
+                    var matrix = transform.match(/^matrix\((.+)\)$/);
+                    var translateX = 0;
+                    if (matrix) {
+                        translateX = parseFloat(matrix[1].split(', ')[4]);
+                    }
+                    if (Math.abs(translateX) > 10) return;
+
+                    var imgNode = swipeCard.querySelector('img');
+                    if (imgNode) src = imgNode.src;
                 }
 
                 if (src) {
-                    triggerElement = e.target;
-                    playClickSound();
-                    lightboxImg.src = src;
-                    lightbox.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                    // Focus 管理：將焦點移至關閉按鈕
-                    closeBtn.focus();
+                    showLightbox(src, e.target);
                 }
             }
         });
+
+        // 供內部函式調用
+        window.openLightboxWithItem = function(item) {
+            if (item && item.img) {
+                showLightbox(item.img, null);
+            }
+        };
+
+        function showLightbox(src, trigger) {
+            triggerElement = trigger;
+            playClickSound();
+            lightboxImg.src = src;
+            lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            closeBtn.focus();
+        }
 
         var closeLightbox = function() {
             lightbox.style.display = 'none';
