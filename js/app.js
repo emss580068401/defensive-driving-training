@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(150, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.7, ctx.currentTime);
+            gain.gain.setValueAtTime(1.5, ctx.currentTime); // 最終確定音量為 1.5
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
             osc.start();
             osc.stop(ctx.currentTime + 0.15);
@@ -824,12 +824,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 group: 'challenge',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
+                onChange: function() { playHoverSound(); }, // 拖曳越過其他元素時觸發音效
                 onEnd: function() { playDropSound(); checkWin(); }
             });
             trackSortable = new Sortable(track, {
                 group: 'challenge',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
+                onChange: function() { playHoverSound(); }, // 拖曳越過其他元素時觸發音效
                 onEnd: function() { playDropSound(); checkWin(); }
             });
         }
