@@ -865,6 +865,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 group: 'challenge',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
+                delay: 150,                  // ★ 修正行動端捲動：長按才能拖曳
+                delayOnTouchOnly: true,      // ★ 只受限觸控，不影響滑鼠
                 onChange: function() { playHoverSound(); }, // 拖曳越過其他元素時觸發音效
                 onEnd: function() { playDropSound(); checkWin(); }
             });
@@ -872,6 +874,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 group: 'challenge',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
+                delay: 150,                  // ★ 修正行動端捲動
+                delayOnTouchOnly: true,
                 onChange: function() { playHoverSound(); }, // 拖曳越過其他元素時觸發音效
                 onEnd: function() { playDropSound(); checkWin(); }
             });
