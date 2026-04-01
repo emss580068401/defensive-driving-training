@@ -362,8 +362,6 @@
 
                 <!-- 核心邏輯與關卡精神鑲嵌 (Premium Aesthetic Edition) -->
                 <div class="lab-logic-board" data-aos="zoom-in-up">
-                    <!-- 手機端抽屜把手 -->
-                    <div class="logic-board-handle"></div>
                     <div class="section-title">
                         <h3><i class="fas fa-microchip"></i> 遊戲核心物理邏輯與關卡精神</h3>
                         <p>本實驗室物理判定由後端引擎即時運算，模擬防禦駕駛之科學依據與生理極限。</p>
@@ -520,63 +518,5 @@
 
     <script src="js/questions.js?v=3"></script>
     <script src="js/app.js?v=3"></script>
-
-<style>
-@media (max-width: 1080px) {
-    .lab-logic-board {
-        position: fixed;
-        bottom: 70px; /* 避開底部導覽列 */
-        left: 0;
-        width: 100%;
-        max-height: 75vh;
-        background: #0f172a;
-        z-index: 9999;
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow-y: auto;
-        /* 預設隱藏至底部，只露出把手區域 (45px) */
-        transform: translateY(calc(100% - 45px)); 
-    }
-    .lab-logic-board.is-open {
-        transform: translateY(0);
-    }
-    .logic-board-handle {
-        width: 100%;
-        height: 45px;
-        position: sticky;
-        top: 0;
-        background: inherit;
-        z-index: 10;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
-    .logic-board-handle::after {
-        content: '';
-        width: 40px;
-        height: 6px;
-        background: rgba(255,255,255,0.4);
-        border-radius: 3px;
-        transition: background 0.2s;
-    }
-    .logic-board-handle:active::after {
-        background: #0ea5e9;
-    }
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const board = document.querySelector('.lab-logic-board');
-    const handle = document.querySelector('.logic-board-handle');
-    if (board && handle) {
-        handle.addEventListener('click', () => {
-            board.classList.toggle('is-open');
-        });
-    }
-});
-</script>
 </body>
 </html>
