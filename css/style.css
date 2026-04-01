@@ -1323,7 +1323,13 @@ button.btn-toggle:focus-visible {
     box-shadow: 0 40px 100px rgba(0,0,0,0.4);
     position: relative;
     overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
 }
+
+.logic-board-handle {
+    display: none; /* 預設在桌面版隱藏 */
+}
+
 
 .lab-logic-board::before {
     content: "";
@@ -1494,11 +1500,79 @@ button.btn-toggle:focus-visible {
     padding-top: 10px;
 }
 
-@media (max-width: 768px) {
-    .lab-logic-board { padding: 1.5rem; margin-top: 2rem; border-radius: 16px; }
+@media (max-width: 1080px) {
+    #tab-lab {
+        padding: 0 !important; /* 移除邊距，讓遊戲滿版 */
+    }
+    
+    .lab-container {
+        height: 85vh; /* 佔據大部分視窗 */
+        margin-top: 0;
+        margin-bottom: 0;
+        border-radius: 0; /* 移除圓角增加邊界感 */
+    }
+
+    #lab-frame {
+        height: 100%;
+        touch-action: none; /* 防止玩遊戲時網頁捲動 */
+    }
+
+    /* 將下方的邏輯卡片改為可摺疊，不佔用初始空間 */
+    .lab-logic-board {
+        margin-top: 0px; 
+        padding: 20px 15px;
+        border-radius: 24px 24px 0 0;
+        background: rgba(15, 23, 42, 0.98);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1001; /* 高於 mobile-nav */
+        max-height: 70px; /* 摺疊時的高度 (僅顯示把手與標題) */
+        overflow: hidden;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        cursor: pointer;
+        padding-bottom: 80px; /* 預留底部空間給 mobile-nav */
+    }
+
+    .lab-logic-board.is-expanded {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    /* 抽屜把手 HUD 效果 */
+    .logic-board-handle {
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
+        margin: 0 auto 15px auto;
+        position: relative;
+    }
+
+    .logic-board-handle::after {
+        content: "物理原理分析";
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-size: 0.75rem;
+        color: var(--accent);
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .lab-logic-board.is-expanded .logic-board-handle {
+        background: var(--accent);
+        box-shadow: 0 0 10px var(--accent-glow);
+    }
+
     .logic-grid { grid-template-columns: 1fr; gap: 1.5rem; }
     .formula-box { padding: 1rem 0.8rem; }
 }
+
 
 /* --- 專屬車輛插圖樣式 (V-Illustrations) --- */
 .vehicle-illustration {

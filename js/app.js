@@ -314,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initKeyboardNav();
     initHoverSounds();
     initEmeiCard(); // 🟢 初始化峨眉分隊懸浮卡片
+    initLabDrawer(); // 🟢 初始化實驗室抽屜邏輯
 
     // 等待 deferred 依賴
     waitForDeps(function() {
@@ -1247,4 +1248,33 @@ document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
+
+    // --- 實驗室抽屜 (Mobile Logic Board Drawer) ---
+    function initLabDrawer() {
+        var board = document.querySelector('.lab-logic-board');
+        if (!board) return;
+
+        board.addEventListener('click', function(e) {
+            // 僅在手機端/螢幕寬度小於 1080px 時觸發
+            if (window.innerWidth > 1080) return;
+
+            // 切換展開狀態
+            var isExpanded = board.classList.toggle('is-expanded');
+            
+            if (isExpanded) {
+                playClickSound();
+                // 展開後重整 AOS 動畫，確保內部元素能正確顯示
+                if (typeof AOS !== 'undefined') {
+                    setTimeout(function() {
+                        AOS.refresh();
+                    }, 400); // 等待 CSS transition 完成
+                }
+            } else {
+                playClickSound();
+                // 如果收合時滾動過多，將其捲回頂部（此處 board 本身有 overflow-y）
+                board.scrollTop = 0;
+            }
+        });
+    }
 });
+

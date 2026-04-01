@@ -507,6 +507,9 @@
             state = 'BRAKING'; reactMs = performance.now() - timeS;
             hMs.innerText = (reactMs / 1000).toFixed(2);
             document.querySelectorAll('.t-tail-l, .t-tail-r').forEach(l => l.classList.add('active'));
+
+            // 增加手機震動回饋 (煞車短震)
+            if ("vibrate" in navigator) navigator.vibrate(30);
         }
     }
 
@@ -562,6 +565,6 @@
             crack.classList.add('active');
             setTimeout(() => crack.classList.remove('active'), 2000);
         }
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // 行動端震動回饋
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]); // 行動端撞擊震動回饋
     }
 })();
