@@ -1255,32 +1255,29 @@ document.addEventListener('DOMContentLoaded', function() {
         var handle = document.querySelector('.logic-board-handle');
         if (!board || !handle) return;
 
-        handle.addEventListener('click', function() {
-            // 僅在手機端/螢幕寬度小於 1080px 時觸發
+        function toggleDrawer(e) {
             if (window.innerWidth > 1080) return;
-
-            // 切換展開狀態
+            e.stopPropagation();
             var isActive = board.classList.toggle('active');
-            
-            // 觸覺回饋（手機端）
-            if ("vibrate" in navigator) {
-                navigator.vibrate(20);
-            }
-
+            if ("vibrate" in navigator) navigator.vibrate(20);
+            playClickSound();
             if (isActive) {
-                playClickSound();
-                // 展開後重整 AOS 動畫，確保內部元素能正確顯示
                 if (typeof AOS !== 'undefined') {
-                    setTimeout(function() {
-                        AOS.refresh();
-                    }, 400); // 等待 CSS transition 完成
+                    setTimeout(function() { AOS.refresh(); }, 400);
                 }
             } else {
-                playClickSound();
-                // 如果收合時滾動過多，將其捲回頂部（此處 board 本身有 overflow-y）
                 board.scrollTop = 0;
             }
+        }
+
+        handle.addEventListener('click', toggleDrawer);
+        handle.addEventListener('touchend', function(e) {
+            e.preventDefault(); // 阻止 300ms 延遲與 ghost click
+            toggleDrawer(e);
         });
+        handle.style.cursor = 'pointer';
+        handle.style.touchAction = 'manipulation';
+
     }
 });
 

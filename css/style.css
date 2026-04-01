@@ -1529,17 +1529,19 @@ button.btn-toggle:focus-visible {
         bottom: 60px; /* 避開底部導覽列 */
         left: 0;
         width: 100%;
-        z-index: 2000;
+        z-index: 10000; /* 提升層級，解決遮擋判定問題 */
         background: rgba(15, 23, 42, 0.98);
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(25px);
         border-radius: 25px 25px 0 0;
         border-top: 1px solid var(--accent);
-        transform: translateY(calc(100% - 60px)); /* 預設只露出把手與標題高度 */
+        /* 終極優化：只露出 30px 把手空間，徹底釋放 10.4 標章區域 */
+        transform: translateY(calc(100% - 30px)); 
         transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         padding: 0 20px 80px 20px;
         overflow-y: auto;
-        max-height: 80vh;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+        /* 限制最大高度為 70vh，確保螢幕頂部 30% 空間始終可見 */
+        max-height: 70vh; 
+        box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
         cursor: pointer;
     }
 
@@ -1548,25 +1550,37 @@ button.btn-toggle:focus-visible {
         transform: translateY(0);
     }
 
-    /* 把手樣式優化 */
+    /* 把手樣式優化 (Sticky 置頂) */
     .logic-board-handle {
-        width: 50px;
-        height: 6px;
-        background: rgba(255, 255, 255, 0.3);
+        width: 100%;
+        height: 30px;
+        position: sticky;
+        top: 0;
+        background: inherit;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .logic-board-handle::before {
+        content: '';
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.4);
         border-radius: 10px;
-        margin: 15px auto;
-        display: block !important;
-        position: relative;
+        transition: background 0.2s;
     }
 
     .logic-board-handle::after {
         content: "物理原理分析";
         position: absolute;
-        top: 12px;
+        top: 18px;
         left: 50%;
         transform: translateX(-50%);
         white-space: nowrap;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--accent);
         font-weight: bold;
         letter-spacing: 1px;
