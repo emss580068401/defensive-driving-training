@@ -371,6 +371,10 @@
         state = 'IDLE'; speed = 0; dist = 40; reactMs = 0; lastTime = 0;
         window.roundTargetSpeed = 0; // 重置每局目標時速
         window.startSpeed = 0; // 🟢 重置快照車速
+
+        // 🟢 修復：確保重新開始時，恢復當前環境的初始摩擦係數 (熱衰減冷卻)
+        mu = ENV_DATA[currentEnv].mu; 
+
         hMs.innerText = '0.00'; pZone.style.display = 'none'; resultV10.style.display = 'none';
         truck.style.transform = 'none'; fx.innerHTML = '';
         document.querySelectorAll('.t-tail-l, .t-tail-r, .led-bar').forEach(l => l.classList.add('active')); // Reset LEDs
@@ -462,8 +466,8 @@
 
     mBtn.onclick = handleAction;
 
-    // 全域熱區優化：手機用戶點擊任意位置皆可反應 (排除按鈕與結算選單)
-    document.addEventListener('pointerdown', (e) => {
+    // 🟢 商業級優化：建立共用的高優先級角點觸控處理器
+    const handleGlobalTap = (e) => {
         // 確保不是點擊在結算視窗或其子元素
         if (resultV10 && resultV10.style.display === 'flex' && resultV10.contains(e.target)) return;
         
@@ -471,10 +475,15 @@
         if (state === 'IDLE' || state === 'WAIT' || state === 'ACCEL' || state === 'REACTING') {
             // 排除其他實體按鈕點擊，由原生事件處理，避免重複
             if (e.target.tagName !== 'BUTTON') {
+                e.preventDefault(); // 防止 touchstart 觸發後續的 pointerdown 導致雙重觸發
                 handleAction();
             }
         }
-    });
+    };
+
+    // 移除原本的單一監聽器，替換為高效能混合監聽
+    document.addEventListener('pointerdown', handleGlobalTap, { passive: false });
+    document.addEventListener('touchstart', handleGlobalTap, { passive: false });
 
     // 啟動迴圈時傳入初始時間
     requestAnimationFrame((timestamp) => {
