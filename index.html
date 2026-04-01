@@ -36,6 +36,11 @@
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Hammer.js (deferred) -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+
+    <!-- KaTeX for high-quality math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
 </head>
 <body class="dark-theme">
     <!-- Splash Screen -->
@@ -353,6 +358,100 @@
                 </div>
                 <div class="lab-container">
                     <iframe src="braking-lab-v10-4.html" id="lab-frame" title="煞停實驗室" loading="lazy"></iframe>
+                </div>
+
+                <!-- 核心邏輯與關卡精神鑲嵌 (Premium Aesthetic Edition) -->
+                <div class="lab-logic-board" data-aos="zoom-in-up">
+                    <div class="section-title">
+                        <h3><i class="fas fa-microchip"></i> 遊戲核心物理邏輯與關卡精神</h3>
+                        <p>本實驗室物理判定由後端引擎即時運算，模擬防禦駕駛之科學依據與生理極限。</p>
+                    </div>
+
+                    <div class="logic-grid">
+                        <!-- 1. 物理判定核心 -->
+                        <div class="logic-card" data-aos="fade-up" data-aos-delay="100">
+                            <h4><i class="fas fa-calculator"></i> 1. 物理判定核心</h4>
+                            <img src="images/vehicles/fire-engine.png" alt="新竹縣消防水箱車" class="vehicle-illustration">
+                            <p>系統根據突發狀況瞬間的「快照車速」與「反應延遲」精算目標距離：</p>
+                            <div class="formula-box">
+                                $$d_{total} = \frac{v^2}{2\mu G} + (v \times t_{buffer}) + (v \times 0.2)$$
+                            </div>
+                            <ul class="logic-vars">
+                                <li><strong>$v$</strong>：突發瞬間時速 (Snapshot Speed)</li>
+                                <li><strong>$G$</strong>：重力加速度採標準值 ($9.81 \, m/s^2$)</li>
+                                <li><strong>$\mu$ (環境參數)</strong>：晴天 ($0.85$)、夜間 ($0.75$)、雨天 ($0.71$)</li>
+                                <li><strong>隨速餘裕 ($0.2v$)</strong>：模擬制動系統與卡鉗作動延遲</li>
+                            </ul>
+                            <div class="spirit-tag">理念：掌握物理極限，不盲目依賴煞車性能</div>
+                        </div>
+
+                        <!-- 2. 動態衰減機制 -->
+                        <div class="logic-card" data-aos="fade-up" data-aos-delay="200">
+                            <h4><i class="fas fa-temperature-high"></i> 2. 煞車熱衰竭與疲勞</h4>
+                            <img src="images/vehicles/rescue-truck.png" alt="新竹縣特種器材車" class="vehicle-illustration">
+                            <p>模擬高壓執勤下的器械負荷與大腦認知負荷：</p>
+                            <div class="formula-box">
+                                $$\mu_{fade} = \max(0.4, \mu_{base} - (Streak-8) \times 0.02)$$
+                                $$t_{fatigue} = \max(0.45, 0.85 - (Streak-9) \times 0.05)$$
+                            </div>
+                            <ul class="logic-vars">
+                                <li><strong>煞車熱衰竭</strong>：$8$ 連勝後制動力逐關下滑 $2\%$，最低 $0.4$</li>
+                                <li><strong>駕駛疲勞</strong>：$10$ 連勝後反應視窗每關壓縮 $0.05s$</li>
+                                <li><strong>生理極限</strong>：反應緩衝最低限制在極限的 $0.45s$ 封頂</li>
+                            </ul>
+                        </div>
+
+                        <!-- 3. 戰術關卡精神 -->
+                        <div class="logic-card" data-aos="fade-up" data-aos-delay="300">
+                            <h4><i class="fas fa-medal"></i> 3. 戰術關卡精神摘要</h4>
+                            <table class="streak-table">
+                                <thead>
+                                    <tr>
+                                        <th>階段</th>
+                                        <th>連勝數</th>
+                                        <th>核心邏輯變更點</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>穩定巡航</td>
+                                        <td>$1 \sim 7$ 關</td>
+                                        <td>車速穩定攀升，最高 $100 \, km/h$</td>
+                                    </tr>
+                                    <tr>
+                                        <td>器械過熱</td>
+                                        <td>$8$ 關以後</td>
+                                        <td><strong>煞車熱衰竭</strong> 啟動，煞停距離拉長</td>
+                                    </tr>
+                                    <tr>
+                                        <td>疲勞挑戰</td>
+                                        <td>$10$ 關以後</td>
+                                        <td><strong>反應視窗縮減</strong>，模擬極限心理壓力</td>
+                                    </tr>
+                                    <tr>
+                                        <td>威脅識別</td>
+                                        <td>全階段</td>
+                                        <td>$66.6\%$ 衝出率，含 $60\%$ <strong>假移動</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="logic-note">※ 防禦駕駛的核心在於「預判危險」而非「反射」。</div>
+                        </div>
+
+                        <!-- 4. 數據背後的預防哲學 -->
+                        <div class="logic-card" data-aos="fade-up" data-aos-delay="400">
+                            <h4><i class="fas fa-eye"></i> 4. 數據背後的預防哲學</h4>
+                            <img src="images/vehicles/ambulance.png" alt="新竹縣救護車" class="vehicle-illustration">
+                            <p>物理公式不僅是數值運算，更是對駕駛者的沈默警告：</p>
+                            <ul class="logic-vars">
+                                <li><strong>二次方律的恐懼</strong>：$v^2$ 決定動能。時速提升 1 倍，距長增加 4 倍。</li>
+                                <li><strong>生理牆的限制</strong>：當 $t_{fatigue}$ 縮減至極限時，分秒之差即是生死。</li>
+                                <li><strong>器械的沈默抗議</strong>：$\mu_{fade}$ 提醒制動力隨連續負荷衰退。</li>
+                                <li><strong>空間即是生命</strong>：$d_{total}$ 的總合就是求生空間。多留安全餘裕。</li>
+                            </ul>
+                            <div class="spirit-tag">核心：預判危險的力量，遠大於極限反應的補救</div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>

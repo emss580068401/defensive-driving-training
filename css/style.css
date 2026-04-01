@@ -612,6 +612,18 @@ button.btn-toggle.active {
     box-shadow: 0 6px 15px rgba(0,0,0,0.6);
 }
 
+.formula-box {
+    background: #0f172a;
+    padding: 1.5rem 1.2rem;
+    border-radius: 12px;
+    color: #38bdf8;
+    margin: 1.2rem 0;
+    text-align: center;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.1);
+    overflow-x: auto; /* 防止長公式在小螢幕溢出 */
+}
+
 .engine-node .vehicle-box { background: #dc2626; border-color: #991b1b; }
 .police-node .vehicle-box { background: #1e40af; border-color: #1e3a8a; }
 .incident-node .vehicle-box { background: #475569; border: 2px solid #334155; }
@@ -1279,15 +1291,18 @@ button.btn-toggle:focus-visible {
 
 .lab-container {
     width: 100%;
-    aspect-ratio: 1 / 1; /* 設定為 16:16 正方形比例 */
+    aspect-ratio: 1 / 1;
     max-height: 800px;
     margin-top: 2.5rem;
     margin-bottom: 2rem;
-    border-radius: 24px;
+    border-radius: 28px;
     overflow: hidden;
     background: #000;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 
+        0 20px 60px rgba(0,0,0,0.8),
+        inset 0 0 100px rgba(56, 189, 248, 0.05); /* 輕微內發光 */
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
 }
 
 #lab-frame {
@@ -1296,11 +1311,226 @@ button.btn-toggle:focus-visible {
     border: none;
     display: block;
 }
-/* 行動版實驗室適配 */
+
+/* --- 煞停實驗室核心邏輯看板 (Premium Optimization) --- */
+.lab-logic-board {
+    margin-top: 4rem;
+    padding: 3rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(25px); /* 更深層的玻璃模糊 */
+    box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.lab-logic-board::before {
+    content: "";
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.logic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.logic-card {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 24px;
+    padding: 2.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.logic-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    background: rgba(30, 41, 59, 0.85);
+    border-color: #38bdf8;
+    box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.logic-card h4 {
+    color: #38bdf8;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+/* 超進化 HUD 電子螢幕公式效果 */
+.formula-box {
+    background: #020617;
+    padding: 1.8rem 1.2rem;
+    border-radius: 16px;
+    color: #06b6d4;
+    margin: 1.5rem 0;
+    text-align: center;
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    box-shadow: 
+        inset 0 0 30px rgba(6, 182, 212, 0.1),
+        0 0 15px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+/* HUD 掃描線效果 */
+.formula-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.15) 50%
+    ), linear-gradient(
+        90deg, 
+        rgba(255, 0, 0, 0.03), 
+        rgba(0, 255, 0, 0.01), 
+        rgba(0, 0, 255, 0.03)
+    );
+    background-size: 100% 3px, 4px 100%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.6;
+}
+
+/* 微弱閃爍動畫 */
+@keyframes hud-flicker {
+    0% { opacity: 0.98; }
+    5% { opacity: 0.95; }
+    10% { opacity: 0.99; }
+    15% { opacity: 0.92; }
+    100% { opacity: 1; }
+}
+.formula-box .katex-display {
+    animation: hud-flicker 4s infinite linear;
+    text-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+}
+
+.logic-vars {
+    list-style: none;
+    font-size: 1rem;
+    color: #94a3b8;
+    line-height: 2;
+}
+
+.logic-vars li {
+    padding-left: 24px;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.logic-vars li::before {
+    content: "\f054";
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #38bdf8;
+    position: absolute;
+    left: 0;
+    font-size: 0.75rem;
+    top: 2px;
+}
+
+.streak-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* 列與列之間的空隙 */
+    margin-top: 1.5rem;
+}
+
+.streak-table th {
+    color: #38bdf8;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    padding: 10px;
+}
+
+.streak-table td {
+    background: rgba(255,255,255,0.03);
+    padding: 15px 12px;
+    color: #e2e8f0;
+}
+
+.streak-table tr td:first-child { border-radius: 12px 0 0 12px; font-weight: bold; color: #fff; }
+.streak-table tr td:last-child { border-radius: 0 12px 12px 0; }
+
+.streak-table tr:hover td {
+    background: rgba(56, 189, 248, 0.1);
+    color: #fff;
+}
+
+.spirit-tag {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.6) 0%, rgba(30, 58, 138, 0.8) 100%);
+    color: #e0f2fe;
+    font-size: 0.85rem;
+    margin-top: 1.5rem;
+    border: 1px solid rgba(186, 230, 253, 0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-weight: 500;
+}
+
+.logic-note {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 1.8rem;
+    font-style: italic;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 10px;
+}
+
 @media (max-width: 768px) {
-    .lab-container {
-        aspect-ratio: auto;
-        height: 550px;
-        border-radius: 16px;
-    }
+    .lab-logic-board { padding: 1.5rem; margin-top: 2rem; border-radius: 16px; }
+    .logic-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .formula-box { padding: 1rem 0.8rem; }
+}
+
+/* --- 專屬車輛插圖樣式 (V-Illustrations) --- */
+.vehicle-illustration {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    margin: -1rem auto 1.5rem auto;
+    display: block;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)) drop-shadow(0 0 15px rgba(56, 189, 248, 0.2));
+    transition: all 0.5s ease;
+    animation: vehicle-float 6s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+}
+
+.logic-card:hover .vehicle-illustration {
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6)) drop-shadow(0 0 25px rgba(56, 189, 248, 0.4));
+    transform: scale(1.05);
+}
+
+/* 車輛浮遊感動畫 */
+@keyframes vehicle-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* HUD 掃描線疊加效果 (選配) */
+.vehicle-illustration::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+    background-size: 100% 4px;
+    opacity: 0.3;
 }
