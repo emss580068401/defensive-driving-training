@@ -1326,7 +1326,7 @@ button.btn-toggle:focus-visible {
     transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.logic-board-handle {
+.logic-board-handle, .drawer-header-sticky {
     display: none; /* 預設在桌面版隱藏 */
 }
 
@@ -1552,6 +1552,7 @@ button.btn-toggle:focus-visible {
 
     /* 全新：置頂吸附把手區塊 (含背景色遮擋文字) */
     .drawer-header-sticky {
+        display: block;
         position: sticky;
         top: 0;
         width: calc(100% + 40px); /* 補回父層 padding */
@@ -1564,6 +1565,7 @@ button.btn-toggle:focus-visible {
 
     /* 把手樣式優化 */
     .logic-board-handle {
+        display: block;
         width: 40px;
         height: 5px;
         background: rgba(255, 255, 255, 0.4);

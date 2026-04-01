@@ -1274,13 +1274,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        handle.addEventListener('click', toggleDrawer);
-        handle.addEventListener('touchend', function(e) {
-            e.preventDefault(); // 阻止 300ms 延遲與 ghost click
+        // 修正：將點擊目標擴大到整塊置頂區域 (含背景文字區域)
+        var trigger = document.querySelector('.drawer-header-sticky') || handle;
+        
+        trigger.addEventListener('click', toggleDrawer);
+        trigger.addEventListener('touchend', function(e) {
+            e.preventDefault();
             toggleDrawer(e);
         });
-        handle.style.cursor = 'pointer';
-        handle.style.touchAction = 'manipulation';
+        trigger.style.cursor = 'pointer';
+        trigger.style.touchAction = 'manipulation';
 
     }
 });
