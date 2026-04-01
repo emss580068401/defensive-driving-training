@@ -333,6 +333,7 @@
 
         // 將生成的初始距離存入全域，供視覺渲染使用
         window.startDist = dist;
+        window.startSpeed = speed; // 🟢 修復：記錄突發狀況瞬間的真實車速，供結算評分使用
 
         const targets = ['🚶', '🏃', '🦌', '👨‍🦽', '🐕'];
         const tEl = document.getElementById('p-target');
@@ -364,6 +365,7 @@
     window.resetV10 = () => {
         state = 'IDLE'; speed = 0; dist = 40; reactMs = 0; lastTime = 0;
         window.roundTargetSpeed = 0; // 重置每局目標時速
+        window.startSpeed = 0; // 🟢 重置快照車速
         hMs.innerText = '0.00'; pZone.style.display = 'none'; resultV10.style.display = 'none';
         truck.style.transform = 'none'; fx.innerHTML = '';
         document.querySelectorAll('.t-tail-l, .t-tail-r, .led-bar').forEach(l => l.classList.add('active')); // Reset LEDs
@@ -468,10 +470,11 @@
         loop(timestamp);
     });
 
-    // 🟢 優化後：讀取真實車速與真實初始距離
+    // 🟢 優化後：讀取目標出現瞬間的「快照車速」
     function calculatePerformance(finalDist, reactionTime) {
-        // 使用當下真實的 speed 變數
-        const current_v_ms = speed / 3.6; 
+        // 使用快照車速，若無則降級使用當下 speed (防呆)
+        const snapSpeed = window.startSpeed || speed; 
+        const current_v_ms = snapSpeed / 3.6; 
         const theoreticalBrakingDist = (current_v_ms * current_v_ms) / (2 * mu * G);
         const reactionDist = current_v_ms * (reactionTime / 1000);
         
