@@ -1252,16 +1252,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 實驗室抽屜 (Mobile Logic Board Drawer) ---
     function initLabDrawer() {
         var board = document.querySelector('.lab-logic-board');
-        if (!board) return;
+        var handle = document.querySelector('.logic-board-handle');
+        if (!board || !handle) return;
 
-        board.addEventListener('click', function(e) {
+        handle.addEventListener('click', function() {
             // 僅在手機端/螢幕寬度小於 1080px 時觸發
             if (window.innerWidth > 1080) return;
 
             // 切換展開狀態
-            var isExpanded = board.classList.toggle('is-expanded');
+            var isActive = board.classList.toggle('active');
             
-            if (isExpanded) {
+            // 觸覺回饋（手機端）
+            if ("vibrate" in navigator) {
+                navigator.vibrate(20);
+            }
+
+            if (isActive) {
                 playClickSound();
                 // 展開後重整 AOS 動畫，確保內部元素能正確顯示
                 if (typeof AOS !== 'undefined') {
@@ -1277,4 +1283,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 
