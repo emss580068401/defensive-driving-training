@@ -19,6 +19,7 @@
     let currentEnv = 'sunny', currentRisk = 3;
     let mu = 0.85, speed = 0, state = 'IDLE', dist = 40, reactMs = 0, timeS = 0, targetX = 0;
     let targetD = 40, rushProb = 0.666, roadPos = 0, sceneryProps = [], currentStreak = 0, tempRecordScore = 0;
+    let isAudioSilenced = false; // 🟢 追蹤全域靜音狀態
 
     // Delta Time 補償變數
     let lastTime = 0;
@@ -102,6 +103,7 @@
     function playScreech() { try { const c = getCtx(), o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter(); o.type = 'sawtooth'; f.type = 'bandpass'; f.frequency.value = 2000; f.Q.value = 1.5; o.frequency.setValueAtTime(800, c.currentTime); o.frequency.exponentialRampToValueAtTime(100, c.currentTime + 0.5); g.gain.setValueAtTime(1.5, c.currentTime); g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.5); o.connect(f); f.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.5); } catch (e) { } }
 
     function updEng(s) {
+        if (isAudioSilenced) return; // 🟢 靜音模式下不啟動引擎
         try {
             const c = getCtx();
             if (!eng) {
@@ -111,7 +113,29 @@
             eng.frequency.setTargetAtTime(30 + s * 1.5, c.currentTime, 0.1);
         } catch (e) { }
     }
-    function stopEng() { if (eng) { eng.vGain.gain.setTargetAtTime(0, getCtx().currentTime, 0.2); setTimeout(() => { if (eng) { eng.stop(); eng = null; } }, 300); } }
+    function stopEng() { 
+        if (eng) { 
+            try {
+                const now = getCtx().currentTime;
+                eng.vGain.gain.setTargetAtTime(0, now, 0.1); 
+                const oldEng = eng;
+                eng = null; // 立即清除引用，防止下一幀重新啟動
+                setTimeout(() => { if (oldEng) { oldEng.stop(); } }, 200); 
+            } catch(e) {}
+        } 
+    }
+
+    // 🟢 監聽來自父分頁的靜音指令
+    window.addEventListener('message', (e) => {
+        if (e.data.type === 'STOP_LAB_AUDIO') {
+            isAudioSilenced = true;
+            stopEng();
+            const c = getCtx();
+            if (c.state !== 'suspended') c.suspend(); 
+        } else if (e.data.type === 'RESUME_LAB_AUDIO') {
+            isAudioSilenced = false;
+        }
+    });
 
     function loadFame() {
         const list = JSON.parse(localStorage.getItem('v10-hero-board') || '[]');

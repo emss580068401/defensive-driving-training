@@ -414,6 +414,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function switchTab(tabId) {
+        // 🟢 偵測是否離開煞停實驗室
+        if (currentTab === 'lab' && tabId !== 'lab') {
+            const labFrame = document.getElementById('lab-frame');
+            if (labFrame && labFrame.contentWindow) {
+                labFrame.contentWindow.postMessage({ type: 'STOP_LAB_AUDIO' }, '*');
+            }
+        }
+
         // Exit animation on current active tab
         var currentActive = document.querySelector('.tab-content.active');
         if (currentActive && currentActive.id !== 'tab-' + tabId) {
@@ -438,6 +446,14 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() {
             var tabEl = document.getElementById('tab-' + tabId);
             if (tabEl) tabEl.classList.add('active');
+
+            // 🟢 切換回實驗室時，發送恢復指令
+            if (tabId === 'lab') {
+                const labFrame = document.getElementById('lab-frame');
+                if (labFrame && labFrame.contentWindow) {
+                    labFrame.contentWindow.postMessage({ type: 'RESUME_LAB_AUDIO' }, '*');
+                }
+            }
         }, currentActive && currentActive.id !== 'tab-' + tabId ? 260 : 0);
 
         currentTab = tabId;
