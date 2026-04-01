@@ -294,7 +294,12 @@
         }
 
         hSpeed.innerText = Math.floor(speed);
-        updateScenery(speed, dt); updEng(speed); updateRain(dt);
+        
+        if (state !== 'DONE') {
+            updateScenery(speed, dt); 
+            updEng(speed); 
+        }
+        updateRain(dt); // 🟢 修復：殭屍 Bug - 狀態為 DONE 時阻斷捲動與音訊，僅保留雨滴
 
         if (state === 'REACTING' || state === 'BRAKING') {
             const h = document.getElementById('road-box').clientHeight || 800;
@@ -405,6 +410,13 @@
 
         if (isPass) {
             currentStreak++;
+            
+            // 🟢 修補：煞車熱衰減 (Brake Fade)
+            // 當連勝超過 8 次後，摩擦係數 mu 開始遞減
+            if (currentStreak > 8) {
+                mu = Math.max(0.4, mu - 0.02); 
+                console.log(`[系統警告] 煞車過熱！當前摩擦係數: ${mu.toFixed(2)}`);
+            }
             hStreak.innerText = currentStreak;
             hStreak.style.color = "var(--warning)";
         } else {
