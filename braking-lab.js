@@ -254,7 +254,13 @@
 
     window.setEnv = (type, noReset) => {
         if (!noReset && (state !== 'IDLE' && state !== 'DONE')) return;
-        currentEnv = type; const d = ENV_DATA[type]; mu = d.mu;
+        currentEnv = type; const d = ENV_DATA[type]; 
+        
+        // 🟢 核心修復：統一在此處動態結算熱衰減
+        // 如果連勝大於 8，計算衰減值；若連勝歸零，衰減值自然歸零，完美恢復初始狀態
+        let fadeAmount = currentStreak > 8 ? (currentStreak - 8) * 0.02 : 0;
+        mu = Math.max(0.4, d.mu - fadeAmount);
+        
         nightShade.style.display = d.night ? 'block' : 'none';
         roadWet.style.opacity = d.weather === 'rainy' ? 0.6 : 0;
         document.getElementById('scene-l').style.background = d.grass;
@@ -372,8 +378,8 @@
         window.roundTargetSpeed = 0; // 重置每局目標時速
         window.startSpeed = 0; // 🟢 重置快照車速
 
-        // 🟢 修復：確保重新開始時，恢復當前環境的初始摩擦係數 (熱衰減冷卻)
-        mu = ENV_DATA[currentEnv].mu; 
+        // 🟢 修復：在此移除直接賦值 mu，權限交還給 setEnv 進行環境物理初始化
+        // mu = ENV_DATA[currentEnv].mu; 
 
         hMs.innerText = '0.00'; pZone.style.display = 'none'; resultV10.style.display = 'none';
         truck.style.transform = 'none'; fx.innerHTML = '';
@@ -415,11 +421,10 @@
         if (isPass) {
             currentStreak++;
             
-            // 🟢 修補：煞車熱衰減 (Brake Fade)
-            // 當連勝超過 8 次後，摩擦係數 mu 開始遞減
+            // 🟢 修補：煞車熱衰減 (Brake Fade) 邏輯已搬遷至 setEnv
+            // 此處僅作為 console 資訊提示 UI，不再直接更動 mu
             if (currentStreak > 8) {
-                mu = Math.max(0.4, mu - 0.02); 
-                console.log(`[系統警告] 煞車過熱！當前摩擦係數: ${mu.toFixed(2)}`);
+                console.log(`[系統警告] 煞車系統過熱，下一局制動力將下降！`);
             }
             hStreak.innerText = currentStreak;
             hStreak.style.color = "var(--warning)";
@@ -433,6 +438,13 @@
                 document.getElementById('fame-input-group').style.display = 'flex';
             }
         }
+
+        // 🟢 UX 優化：根據輸贏動態改變按鈕文字，消除玩家疑慮
+        const resetBtn = document.getElementById('reset-btn');
+        if (resetBtn) {
+            resetBtn.innerText = isPass ? '繼續下一局' : '重新開始';
+        }
+
         resultV10.style.display = 'flex';
     }
 
@@ -448,13 +460,21 @@
             const envs = ['sunny', 'rainy', 'night'];
             const randEnv = envs[Math.floor(Math.random() * envs.length)];
             setEnv(randEnv, true);
-            state = 'ACCEL'; document.querySelectorAll('.led-bar').forEach(l => l.classList.add('active'));
+            state = 'ACCEL'; 
+            document.querySelectorAll('.led-bar').forEach(l => l.classList.add('active'));
+            
+            // 🟢 修復：起步加速時，確保煞車燈熄滅
+            document.querySelectorAll('.t-tail-l, .t-tail-r').forEach(l => l.classList.remove('active'));
+            
             hStreak.style.color = "var(--warning)";
         }
         else if (state === 'REPEAT_BLOCK') return; 
         else if (state === 'ACCEL' || state === 'WAIT') {
             state = 'DONE'; stopEng();
-            playCrash();
+            
+            // 🟢 修復：提前踩煞車不會撞碎玻璃，改為播放單純的輪胎打滑聲
+            playScreech(); 
+            
             showR(true);
         }
         else if (state === 'REACTING') {
