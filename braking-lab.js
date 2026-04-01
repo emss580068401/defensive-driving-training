@@ -43,12 +43,10 @@
         checkMobile();
     }
     function checkMobile() {
-        const body = document.body;
-        if (!body) return;
         if (window.innerWidth < 1080) {
-            body.classList.add('is-mobile');
+            document.documentElement.classList.add('is-mobile');
         } else {
-            body.classList.remove('is-mobile');
+            document.documentElement.classList.remove('is-mobile');
         }
     }
     window.addEventListener('DOMContentLoaded', resizeCvs);
@@ -224,29 +222,38 @@
         const h = roadBox.offsetHeight || 900;
         const spawnY = h - 160;
         const p = document.createElement('div'); p.className = 'exhaust-p';
-        p.style.width = p.style.height = '15px'; p.style.left = '232px'; p.style.top = spawnY + 'px';
+        
+        // 🟢 修復：動態計算路面中心點
+        const roadW = roadBox.offsetWidth;
+        const carCenter = roadW / 2;
+        
+        p.style.width = p.style.height = '15px'; 
+        p.style.left = (carCenter - 3) + 'px'; 
+        p.style.top = spawnY + 'px';
         fx.appendChild(p); setTimeout(() => p.remove(), 800);
     }
 
     function spawnSkid() {
         if (fx.childElementCount > 40) return;
         const h = roadBox.offsetHeight || 900;
-        // 車尾距離路箱底部約 80px，後輪距離車尾 25px，總計 105px
         const spawnY = h - 105; 
         const s = document.createElement('div'); 
         s.className = 'skidV10'; 
         s.style.height = '120px'; 
-        s.style.width = '16px'; // 匹配後輪胎寬
+        s.style.width = '16px'; 
         
-        // 路寬 480px，中心 240px。車寬 70px -> 左緣 205px。
-        // 左後輪 (w-rl) left: -5px -> 200px
-        s.style.left = '200px'; 
+        // 🟢 修復：動態計算左右輪打滑痕跡的中心偏移
+        const roadW = roadBox.offsetWidth;
+        const carCenter = roadW / 2;
+        
+        // 左輪
+        s.style.left = (carCenter - 37) + 'px'; 
         s.style.top = (spawnY - 120) + 'px'; 
         fx.appendChild(s);
         
+        // 右輪
         const r = s.cloneNode(); 
-        // 右後輪 (w-rr) 配合視覺微調，向左偏移至 258px
-        r.style.left = '258px'; 
+        r.style.left = (carCenter + 21) + 'px'; 
         fx.appendChild(r);
     }
 
@@ -267,6 +274,14 @@
         document.getElementById('scene-r').style.background = d.grass;
         if (!noReset) resetV10();
     };
+    // 🟢 補齊未定義的系統函式
+    window.setRisk = (level) => {
+        if (state !== 'IDLE' && state !== 'DONE') return;
+        currentRisk = level;
+        rushProb = RISK_DATA[level]?.rushProb || 0.666;
+        console.log(`[系統設定] 威脅等級已切換至 Lv.${level}`);
+    };
+
 
     function loop(timestamp) {
         if (!lastTime) lastTime = timestamp;
@@ -286,8 +301,14 @@
             if (Math.random() > 0.985) { triggerSig(); }
         } else if (state === 'REACTING') {
             dist -= (speed / 3.6) * dt;
-            if (dist < 0 && Math.abs(targetX) < 80) collisionCheck(); // 生死線歸 0：接觸即碰撞
-            if (dist < -20) { state = 'DONE'; stopEng(); setTimeout(showR, 1000); }
+            
+            // 🟢 修復：加入 else if，確保撞車與越線不會在同一幀重複觸發
+            if (dist < 0 && Math.abs(targetX) < 80) {
+                collisionCheck(); 
+            } else if (dist < -20) { 
+                state = 'DONE'; stopEng(); setTimeout(showR, 1000); 
+            }
+            
         } else if (state === 'BRAKING') {
             let v_ms = speed / 3.6;
             const decel = mu * G;
@@ -295,8 +316,13 @@
             speed = next_v_ms * 3.6;
             dist -= v_ms * dt;
             if (speed > 5) playScreech();
-            if (dist < 0 && Math.abs(targetX) < 80) collisionCheck(); // 生死線歸 0：接觸即碰撞
-            if (speed <= 0) { state = 'DONE'; stopEng(); setTimeout(showR, 1500); }
+            
+            // 🟢 修復：加入 else if，防止車速剛好為 0 且撞車時引發兩次 showR
+            if (dist < 0 && Math.abs(targetX) < 80) {
+                collisionCheck(); 
+            } else if (speed <= 0) { 
+                state = 'DONE'; stopEng(); setTimeout(showR, 1500); 
+            }
         }
 
         hSpeed.innerText = Math.floor(speed);
@@ -503,7 +529,6 @@
 
     // 移除原本的單一監聽器，替換為高效能混合監聽
     document.addEventListener('pointerdown', handleGlobalTap, { passive: false });
-    document.addEventListener('touchstart', handleGlobalTap, { passive: false });
 
     // 啟動迴圈時傳入初始時間
     requestAnimationFrame((timestamp) => {
