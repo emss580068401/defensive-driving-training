@@ -89,6 +89,9 @@
                 <button class="nav-btn" data-tab="deployment" role="tab" aria-selected="false" aria-controls="tab-deployment">
                     <i class="fas fa-map-location-dot"></i> 現場部署
                 </button>
+                <button class="nav-btn" data-tab="lab" role="tab" aria-selected="false" aria-controls="tab-lab">
+                    <i class="fas fa-flask"></i> 煞停實驗室
+                </button>
                 <button class="nav-btn" data-tab="quiz" role="tab" aria-selected="false" aria-controls="tab-quiz">
                     <i class="fas fa-clipboard-question"></i> 自我檢測
                 </button>
@@ -133,6 +136,11 @@
                                   <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
                                   <div class="badge-label">防禦專家</div>
                                   <small>取得測驗證書</small>
+                              </div>
+                              <div class="badge-item" id="badge-lab">
+                                  <i class="fas fa-flask" style="color: #0ea5e9;"></i>
+                                  <div class="badge-label">實驗先鋒</div>
+                                  <small>進入實驗室訓練</small>
                               </div>
                          </div>
                      </div>
@@ -337,6 +345,16 @@
                     <!-- Result & Certificate will be here -->
                 </div>
             </section>
+
+            <section id="tab-lab" class="tab-content" role="tabpanel" aria-labelledby="tab-lab">
+                <div class="section-title">
+                    <h2><i class="fas fa-flask"></i> 煞停距離與規避實驗室 <small class="badge" style="background:#0ea5e9;">V10.4.1 PRO</small></h2>
+                    <p>在不同天候與反應延時下，模擬消防車的緊急煞停行為與風險識別。</p>
+                </div>
+                <div class="lab-container">
+                    <iframe src="braking-lab-v10-4.html" id="lab-frame" title="煞停實驗室" loading="lazy"></iframe>
+                </div>
+            </section>
         </main>
 
         <!-- Mobile Bottom Nav -->
@@ -356,6 +374,10 @@
             <button class="mobile-nav-btn" data-tab="deployment" role="tab" aria-selected="false">
                 <i class="fas fa-map-location-dot"></i>
                 <span>部署</span>
+            </button>
+            <button class="mobile-nav-btn" data-tab="lab" role="tab" aria-selected="false">
+                <i class="fas fa-flask"></i>
+                <span>實驗室</span>
             </button>
             <button class="mobile-nav-btn" data-tab="quiz" role="tab" aria-selected="false">
                 <i class="fas fa-clipboard-question"></i>

@@ -42,7 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var habScore = (trackedProgress.habits === 1) ? 100 : 0;
         var depScore = (trackedProgress.deploy === 1) ? 100 : 0;
         var quScore = (trackedProgress.quiz === 1) ? 100 : 0;
-        var totalScore = (vidScore + habScore + depScore + quScore) / 4;
+        // 額外檢查 V10 英雄榜有無紀錄
+        var hasLabRecord = !!localStorage.getItem('v10-hero-board');
+        var labScore = (trackedProgress.lab === 1 || hasLabRecord) ? 100 : 0;
+        var totalScore = (vidScore + habScore + depScore + quScore + labScore) / 5;
         var bar = document.getElementById('top-progress-bar');
         if (bar) bar.style.width = totalScore + "%";
     }
@@ -310,6 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initBackToTop();
     initKeyboardNav();
     initHoverSounds();
+    initEmeiCard(); // 🟢 初始化峨眉分隊懸浮卡片
 
     // 等待 deferred 依賴
     waitForDeps(function() {
@@ -332,6 +336,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // 🟢 峨眉分隊懸浮卡片放大功能
+    function initEmeiCard() {
+        const thumb = document.getElementById('emei-portal-thumb');
+        const zoom = document.getElementById('emei-portal-zoom');
+        if (thumb && zoom) {
+            thumb.addEventListener('click', function() {
+                zoom.classList.add('active');
+            });
+        }
+    }
+
     // --- 導覽邏輯 ---
     function initNavigation() {
         var navBtns = document.querySelectorAll('.nav-btn, .mobile-nav-btn');
@@ -351,13 +366,17 @@ document.addEventListener('DOMContentLoaded', function() {
         var habScore = (trackedProgress.habits === 1) ? 100 : 0;
         var depScore = (trackedProgress.deploy === 1) ? 100 : 0;
         var quScore = (trackedProgress.quiz === 1) ? 100 : 0;
-        var totalScore = (vidScore + habScore + depScore + quScore) / 4;
+        // 額外檢查 V10 英雄榜有無紀錄
+        var hasLabRecord = !!localStorage.getItem('v10-hero-board');
+        var labScore = (trackedProgress.lab === 1 || hasLabRecord) ? 100 : 0;
+        var totalScore = (vidScore + habScore + depScore + quScore + labScore) / 5;
 
         // 使用 earned class 取代 inline filter
         if (vidScore === 100) document.getElementById('badge-video').classList.add('earned');
         if (habScore === 100) document.getElementById('badge-habit').classList.add('earned');
         if (depScore === 100) document.getElementById('badge-deploy').classList.add('earned');
         if (quScore === 100) document.getElementById('badge-quiz').classList.add('earned');
+        if (labScore === 100) document.getElementById('badge-lab').classList.add('earned');
 
         var chartCanvas = document.getElementById('dashboardChart');
         if (!chartCanvas || typeof Chart === 'undefined') return;
@@ -423,6 +442,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         currentTab = tabId;
         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (tabId === 'lab' && !trackedProgress.lab) {
+            trackedProgress.lab = 1;
+            saveProgress();
+        }
 
         if (tabId === 'dashboard') {
             setTimeout(renderDashboard, 300);

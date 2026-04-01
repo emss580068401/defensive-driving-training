@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>煞停距離與規避實驗室 V10.3 | 戰術英雄榜版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Noto+Sans+TC:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --sidebar: rgba(15, 23, 42, 0.95);
+            --sidebar-border: rgba(56, 189, 248, 0.2);
+            --accent: #0ea5e9;
+            --accent-glow: #38bdf8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text: #f8fafc;
+            --glass: backdrop-filter: blur(20px) saturate(180%);
+            --grass-sunny: #166534;
+            --grass-rainy: #14532d;
+            --grass-snowy: #e2e8f0;
+            --lane-width: 140px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        .app-shell {
+            display: flex;
+            width: 98vw;
+            max-width: 1440px;
+            height: 94vh;
+            background: #000;
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.1), inset 0 0 100px #000;
+            position: relative;
+        }
+
+        #v10-flash {
+            position: absolute;
+            inset: 0;
+            background: #ef4444;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3000;
+            mix-blend-mode: overlay;
+            transition: 0.1s;
+        }
+
+        #v10-particles {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        #glass-crack {
+            position: absolute;
+            inset: 0;
+            z-index: 8000;
+            background: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .crack-img {
+            width: 100%;
+            height: 100%;
+            background-image: url('./assets/cracked-glass.png');
+            background-size: cover;
+            mix-blend-mode: screen;
+            filter: contrast(180%) brightness(150%) blur(0.5px);
+        }
+
+        #ambient-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            transition: background 1s;
+        }
+
+        aside {
+            width: 340px;
+            flex-shrink: 0;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: var(--sidebar) !important;
+            backdrop-filter: blur(20px) saturate(180%);
+            border-right: 1px solid var(--sidebar-border);
+            z-index: 10000;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        main {
+            flex: 1;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .hud-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .hud-header h1 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 2px;
+            font-family: 'Orbitron';
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.8rem;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #ddd;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1.5px;
+        }
+
+        .stat-val {
+            font-size: 2.4rem;
+            font-weight: 900;
+            font-family: 'Orbitron';
+            line-height: 1;
+            color: #fff;
+            transition: color 0.3s;
+        }
+
+        .night-shade {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 80%, transparent 150px, rgba(0, 0, 0, 0.9) 400px);
+            z-index: 5000;
+            pointer-events: none;
+            display: none;
+        }
+
+        .roadV10 {
+            width: 480px;
+            height: 100%;
+            background: #1e293b;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 15px solid #334155;
+            border-right: 15px solid #334155;
+            z-index: 10;
+            box-shadow: 0 0 100px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .road-texture {
+            position: absolute;
+            inset: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.15"/></svg>');
+            mix-blend-mode: overlay;
+            opacity: 0.5;
+        }
+
+        #v10-marks {
+            position: absolute;
+            left: 50%;
+            top: -100px;
+            width: 100%;
+            height: 200%;
+            transform: translateX(-50%);
+        }
+
+        .lane-mark {
+            position: absolute;
+            left: 50%;
+            width: 8px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .scenery-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        #scene-l,
+        #scene-r {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            transition: background 1s;
+        }
+
+        #scene-l {
+            background: linear-gradient(90deg, #000, var(--grass-sunny));
+        }
+
+        #scene-r {
+            background: linear-gradient(-90deg, #000, var(--grass-sunny));
+        }
+
+        .prop {
+            position: absolute;
+            background-size: cover;
+            z-index: 10;
+            filter: drop-shadow(0 20px 20px rgba(0, 0, 0, 0.8));
+            font-size: 60px !important;
+        }
+
+        .t-cab {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 90px;
+            background: linear-gradient(180deg, #dc2626, #991b1b);
+            border-radius: 12px 12px 4px 4px;
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.3);
+            z-index: 3;
+        }
+
+        .t-glass {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            right: 10px;
+            height: 45px;
+            background: linear-gradient(160deg, #0f172a, #1e293b 50%, #020617);
+            border-radius: 6px;
+            border: 2px solid #334155;
+        }
+
+        .t-siren-bar {
+            position: absolute;
+            top: 65px;
+            left: 20px;
+            right: 20px;
+            height: 12px;
+            background: #1e293b;
+            border-radius: 4px;
+            display: flex;
+            overflow: hidden;
+            border: 1.5px solid #000;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+            z-index: 4;
+        }
+
+        .s-led {
+            flex: 1;
+            height: 100%;
+            background: #450a0a;
+        }
+
+        .s-led.red.active {
+            background: #ef4444;
+            box-shadow: 0 0 30px #ef4444;
+            animation: s-flash-r 0.15s infinite;
+        }
+
+        .s-led.blue.active {
+            background: #3b82f6;
+            box-shadow: 0 0 30px #3b82f6;
+            animation: s-flash-b 0.15s infinite;
+            animation-delay: 0.075s;
+        }
+
+        @keyframes s-flash-r {
+
+            0%,
+            40% {
+                opacity: 1;
+            }
+
+            50%,
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        @keyframes s-flash-b {
+
+            0%,
+            40% {
+                opacity: 1;
+            }
+
+            50%,
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        .t-body {
+            position: absolute;
+            top: 88px;
+            width: 100%;
+            height: 190px;
+            background: linear-gradient(90deg, #7f1d1d, #b91c1c 20%, #b91c1c 80%, #7f1d1d);
+            border-radius: 0 0 8px 8px;
+            border-top: 2px solid #450a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .t-shutter {
+            width: 35px !important;
+            height: 100px !important;
+            background: repeating-linear-gradient(180deg, #1e293b, #1e293b 3px, #0f172a 4px) !important;
+            border: 2px solid #000 !important;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+            border-radius: 4px;
+        }
+
+        .t-ladder {
+            position: absolute;
+            right: 8px;
+            top: 10px;
+            width: 20px;
+            height: 160px;
+            background: rgba(200, 200, 200, 0.9);
+            border: 2px solid #475569;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            z-index: 5;
+        }
+
+        .t-rung {
+            width: 100%;
+            height: 3px;
+            background: #334155;
+        }
+
+        .t-chevron-area {
+            position: absolute !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 30px !important;
+            background: repeating-linear-gradient(45deg, #fbbf24, #fbbf24 8px, #dc2626 8px, #dc2626 16px) !important;
+            border-top: 2px solid #000 !important;
+        }
+
+        .t-wheel {
+            position: absolute;
+            width: 28px;
+            height: 50px;
+            background: #020617;
+            border-radius: 6px;
+            z-index: 1;
+            border: 2px solid #334155;
+            box-shadow: 0 5px 10px #000;
+        }
+
+        .w-fl {
+            top: 20px;
+            left: -5px;
+        }
+
+        .w-fr {
+            top: 20px;
+            right: -5px;
+        }
+
+        .w-rl {
+            bottom: 30px;
+            left: -7px;
+        }
+
+        .w-rr {
+            bottom: 30px;
+            right: -7px;
+        }
+
+        .t-tail-l,
+        .t-tail-r {
+            position: absolute;
+            bottom: 5px;
+            width: 30px;
+            height: 14px;
+            background: #450a0a;
+            border-radius: 4px;
+            border: 1px solid #000;
+            z-index: 5;
+        }
+
+        .t-tail-l {
+            left: 10px;
+        }
+
+        .t-tail-r {
+            right: 10px;
+        }
+
+        .t-tail-l.active,
+        .t-tail-r.active {
+            background: #ff0000;
+            box-shadow: 0 0 40px #ff0000;
+        }
+
+        .v10-main-btn {
+            background: linear-gradient(135deg, #fff, #cbd5e1);
+            color: #020617;
+            padding: 18px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 900;
+            font-size: 1.25rem;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 0 #94a3b8, 0 10px 20px rgba(0, 0, 0, 0.4);
+            font-family: 'Noto Sans TC';
+            letter-spacing: 2px;
+            transition: 0.1s;
+        }
+
+        .v10-main-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #94a3b8;
+        }
+
+        .ctrl-group {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .ctrl-label {
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .w-btn {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 0.4);
+            color: #94a3b8;
+            text-align: left;
+            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .w-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .w-btn.active {
+            background: rgba(14, 165, 233, 0.15);
+            color: #fff;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        }
+
+        #result-v10 {
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            z-index: 9000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+
+        .rush-left {
+            animation: rush-gen 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .rush-right {
+            animation: rush-gen 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes rush-gen {
+            0% {
+                transform: translateX(var(--start-x));
+            }
+
+            100% {
+                transform: translateX(var(--target-x));
+            }
+        }
+
+        #truck-v10 {
+            transition: transform 0.1s, left 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+            transform-origin: center 80%;
+        }
+
+        .sway {
+            animation: chassis-sway 0.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes chassis-sway {
+            0% {
+                transform: rotate(-0.5deg) translateX(-1px);
+            }
+
+            100% {
+                transform: rotate(0.5deg) translateX(1px);
+            }
+        }
+
+        .nose-dive {
+            transform: scaleY(1.05) translateY(-5px) !important;
+            filter: drop-shadow(0 40px 50px rgba(0, 0, 0, 0.9));
+        }
+
+        .exhaust-p {
+            position: absolute;
+            background: rgba(100, 100, 100, 0.4);
+            border-radius: 50%;
+            filter: blur(4px);
+            animation: e-anim 0.8s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes e-anim {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(3) translate(-20px, 50px);
+                opacity: 0;
+            }
+        }
+
+        .skidV10 {
+            position: absolute;
+            width: 34px;
+            background: rgba(10, 10, 10, 0.4);
+            border-radius: 4px;
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .crash-flash {
+            animation: flash-red 0.5s ease-out;
+        }
+
+        @keyframes flash-red {
+            0% {
+                background: rgba(239, 68, 68, 0.8);
+            }
+
+            100% {
+                background: transparent;
+            }
+        }
+
+        /* 英雄榜增強樣式 */
+        .fame-list {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 5px;
+            max-height: 130px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .fame-list::-webkit-scrollbar { width: 4px; }
+        .fame-list::-webkit-scrollbar-thumb { background: var(--sidebar-border); border-radius: 10px; }
+        
+        .fame-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            font-family: 'Noto Sans TC';
+            background: rgba(255,255,255,0.01);
+            margin-bottom: 2px;
+        }
+        .fame-item:nth-child(1) { background: rgba(234, 179, 8, 0.05); border-left: 3px solid #facc15; }
+        .fame-item:nth-child(1) span:first-child { color: #facc15; font-weight: 900; }
+        
+        .fame-streak { font-family: 'Orbitron'; font-weight: 900; color: var(--accent); }
+
+        .fame-input-group {
+            margin-top: 15px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+        }
+        .fame-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--accent);
+            background: rgba(15, 23, 42, 0.8);
+            color: #fff;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ambient-layer"></div>
+    <div id="glass-crack">
+        <div class="crack-img"></div>
+    </div>
+
+    <div class="app-shell">
+        <aside>
+            <div class="hud-header">
+                <h1>煞停實驗室</h1>
+                <span id="v10-ver-tag"
+                    style="font-size: 0.6rem; color: var(--accent); border: 1px solid var(--accent); padding: 2px 4px; border-radius: 4px;">V10.3 HERO</span>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="stat-box">
+                    <div class="stat-label">時速 (KPH)</div>
+                    <div class="stat-val" id="v10-val-speed">0</div>
+                </div>
+                <div class="stat-box" style="border-color: var(--warning);">
+                    <div class="stat-label" style="color: var(--warning);">戰術連勝</div>
+                    <div class="stat-val" id="v10-val-streak" style="color: var(--warning);">0</div>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-label">反應延時 (REACTION)</div>
+                <div class="stat-val" id="v10-val-ms">0.00</div>
+            </div>
+
+            <div class="ctrl-group" style="display: none;">
+                <div class="ctrl-label"><i class="fas fa-mountain"></i> 環境感知 (ENV)</div>
+                <button class="w-btn active e-btn" onclick="setEnv('sunny')"><i class="fas fa-sun"></i> ☀️ 睛天
+                    (μ=0.85)</button>
+                <button class="w-btn e-btn" onclick="setEnv('rainy')"><i class="fas fa-cloud-showers-heavy"></i> 🌧️ 雨天
+                    (μ=0.71)</button>
+                <button class="w-btn e-btn" onclick="setEnv('night')"><i class="fas fa-moon"></i> 🌙 夜間
+                    (μ=0.75)</button>
+            </div>
+
+            <div class="ctrl-group">
+                <div class="ctrl-label"><i class="fas fa-skull-crossbones"></i> 威脅程度 (RISK)</div>
+                <button class="w-btn active r-btn" onclick="setRisk(1)">🟢 Lv.1 穩定巡航 (0%)</button>
+                <button class="w-btn r-btn" onclick="setRisk(2)">🟡 Lv.2 隨機衝突 (40%)</button>
+                <button class="w-btn r-btn" onclick="setRisk(3)">🔴 Lv.3 極限預判 (1/3均等版)</button>
+            </div>
+
+            <div class="ctrl-label" style="margin-top: 5px;"><i class="fas fa-trophy"></i> 戰術名錄 (FAME)</div>
+            <div class="fame-list" id="v10-fame-list"></div>
+
+            <button id="v10-btn-main" class="v10-main-btn" style="margin-top: 5px;">啟動戰術模擬</button>
+        </aside>
+
+        <main id="v10-screen">
+            <canvas id="v10-particles"></canvas>
+            <div id="v10-flash"
+                style="position:absolute; inset:0; pointer-events:none; z-index:3000; opacity:0; transition:0.1s;">
+            </div>
+            <div class="night-shade" id="night-shade"></div>
+            <div class="scenery-layer">
+                <div id="scene-l"></div>
+                <div id="scene-r"></div>
+            </div>
+
+            <div class="roadV10" id="road-box">
+                <div class="road-texture"></div>
+                <div id="road-wet" style="position:absolute; inset:0; background:rgba(255,255,255,0.1); opacity:0;">
+                </div>
+                <div id="v10-marks"></div>
+
+                <div id="p-zone-v10"
+                    style="position:absolute; top:-3000px; width:100%; display:none; justify-content:center; z-index:60;">
+                    <div id="p-scaler" style="transition: none;">
+                        <div id="p-target" style="font-size:80px; position:relative;">🛑</div>
+                    </div>
+                </div>
+
+                <div id="fx-layer" style="position:absolute; inset:0; z-index:50;"></div>
+
+                <div id="truck-v10"
+                    style="position:absolute; bottom:80px; left:50%; width:92px; height:200px; margin-left:-46px; z-index:100; filter: drop-shadow(0 30px 40px rgba(0,0,0,0.8));">
+                    <div class="t-wheel w-fl"></div>
+                    <div class="t-wheel w-fr"></div>
+                    <div class="t-wheel w-rl"></div>
+                    <div class="t-wheel w-rr"></div>
+
+                    <div class="t-cab" style="height: 65px; border-bottom: 2px solid #450a0a;">
+                        <div class="t-siren-bar" style="top: 45px;">
+                            <div class="s-led red led-bar"></div>
+                            <div class="s-led blue led-bar"></div>
+                        </div>
+                        <div class="t-glass" style="height: 30px;"></div>
+                    </div>
+
+                    <div class="t-body" style="height: 140px; top: 63px;">
+                        <div style="display:flex; width:85%; justify-content:space-between; margin-top:10px;">
+                            <div class="t-shutter" style="height: 70px !important; width: 30px !important;"></div>
+                            <div class="t-shutter" style="height: 70px !important; width: 30px !important;"></div>
+                        </div>
+                        <div class="t-ladder" style="height: 110px;">
+                            <div class="t-rung"></div>
+                            <div class="t-rung"></div>
+                            <div class="t-rung"></div>
+                        </div>
+                        <div class="t-chevron-area"></div>
+                        <div class="t-tail-l"></div>
+                        <div class="t-tail-r"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-v10">
+                <div
+                    style="background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); padding:40px; border-radius:24px; text-align:center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 440px;">
+                    <h2 id="v10-res-h" style="font-size:2rem; margin-bottom:15px;">任務完成</h2>
+                    <p id="v10-res-p" style="margin-bottom:20px; font-weight:700;"></p>
+                    
+                    <div id="fame-input-group" class="fame-input-group">
+                        <p style="color: var(--warning); font-weight: 700; letter-spacing: 1px;">🎖️ 達成戰鬥紀錄！請登入編號：</p>
+                        <input type="text" id="fame-name-input" class="fame-input" maxlength="10" placeholder="戰術官代號">
+                        <button class="v10-main-btn" onclick="saveFame()" style="padding:10px; margin-top:5px; font-size:1rem;">存入英雄榜</button>
+                    </div>
+
+                    <button id="reset-btn" class="v10-main-btn" onclick="resetV10()" style="margin-top: 15px;">重新開始</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        (function () {
+            const G = 9.81;
+            const ENV_DATA = {
+                sunny: { mu: 0.85, weather: 'sunny', night: false, grass: '#166534' },
+                rainy: { mu: 0.71, weather: 'rainy', night: false, grass: '#14532d' },
+                night: { mu: 0.75, weather: 'sunny', night: true, grass: '#020617' }
+            };
+            const RISK_DATA = {
+                1: { rushProb: 0, label: '穩定巡航' },
+                2: { rushProb: 0.4, label: '隨機衝突' },
+                3: { rushProb: 0.666, label: '極限預判' }
+            };
+
+            let currentEnv = 'sunny', currentRisk = 1;
+            let mu = 0.85, speed = 0, state = 'IDLE', dist = 50, reactMs = 0, timeS = 0, targetX = 0;
+            let targetD = 50, rushProb = 0, roadPos = 0, sceneryProps = [], currentStreak = 0, tempRecordScore = 0;
+            const hSpeed = document.getElementById('v10-val-speed'), hMs = document.getElementById('v10-val-ms');
+            const hStreak = document.getElementById('v10-val-streak');
+            const mBtn = document.getElementById('v10-btn-main'), truck = document.getElementById('truck-v10');
+            const nightShade = document.getElementById('night-shade'), roadWet = document.getElementById('road-wet');
+            const pZone = document.getElementById('p-zone-v10'), resultV10 = document.getElementById('result-v10');
+            const sceneL = document.getElementById('scene-l'), sceneR = document.getElementById('scene-r');
+            const marks = document.getElementById('v10-marks'), fx = document.getElementById('fx-layer');
+            const roadBox = document.getElementById('road-box'), cvs = document.getElementById('v10-particles');
+            const ctx_p = cvs.getContext('2d');
+
+            let ctx = null, eng = null, rainDrops = [];
+            function resizeCvs() {
+                cvs.width = cvs.clientWidth || cvs.offsetWidth || 1200;
+                cvs.height = cvs.clientHeight || cvs.offsetHeight || 900;
+            }
+            window.addEventListener('load', () => { setTimeout(resizeCvs, 300); });
+            window.addEventListener('resize', resizeCvs);
+            resizeCvs();
+            function getCtx() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+            document.addEventListener('mousedown', () => { const c = getCtx(); if (c.state === 'suspended') c.resume(); });
+
+            function beep(f, t, vol) { try { const c = getCtx(), o = c.createOscillator(), g = c.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.value = vol; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + t); } catch (e) { } }
+            function playCrash() { beep(60, 1.2, 1.5); roadBox.classList.add('crash-flash'); setTimeout(() => roadBox.classList.remove('crash-flash'), 500); }
+            function playScreech() { try { const c = getCtx(), o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter(); o.type = 'sawtooth'; f.type = 'bandpass'; f.frequency.value = 2000; f.Q.value = 1.5; o.frequency.setValueAtTime(800, c.currentTime); o.frequency.exponentialRampToValueAtTime(100, c.currentTime + 0.5); g.gain.setValueAtTime(1.5, c.currentTime); g.gain.exponentialRampToValueAtTime(0.01, c.currentTime + 0.5); o.connect(f); f.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.5); } catch (e) { } }
+
+            function updEng(s) {
+                try {
+                    const c = getCtx();
+                    if (!eng) {
+                        eng = c.createOscillator(); const g = c.createGain(); eng.type = 'sawtooth'; g.gain.value = 0.05; eng.connect(g); g.connect(c.destination); eng.start();
+                        eng.vGain = g;
+                    }
+                    eng.frequency.setTargetAtTime(30 + s * 1.5, c.currentTime, 0.1);
+                } catch (e) { }
+            }
+            function stopEng() { if (eng) { eng.vGain.gain.setTargetAtTime(0, getCtx().currentTime, 0.2); setTimeout(() => { if (eng) { eng.stop(); eng = null; } }, 300); } }
+
+            function loadFame() {
+                const list = JSON.parse(localStorage.getItem('v10-hero-board') || '[]');
+                const html = list.length ? list.map((h, i) => `
+                    <div class="fame-item">
+                        <span>#${i+1} ${h.name}</span>
+                        <span class="fame-streak">${h.score} WIN</span>
+                    </div>
+                `).join('') : '<div style="text-align:center; opacity:0.3; padding:20px;">戰場空虛中...</div>';
+                document.getElementById('v10-fame-list').innerHTML = html;
+            }
+
+            window.saveFame = () => {
+                const name = document.getElementById('fame-name-input').value.trim() || "戰術官";
+                let list = JSON.parse(localStorage.getItem('v10-hero-board') || '[]');
+                list.push({ name, score: tempRecordScore, date: new Date().toISOString() });
+                list.sort((a,b) => b.score - a.score);
+                localStorage.setItem('v10-hero-board', JSON.stringify(list.slice(0, 10)));
+                document.getElementById('fame-input-group').style.display = 'none';
+                tempRecordScore = 0;
+                loadFame();
+            };
+
+            function initScenery() {
+                sceneL.innerHTML = ''; sceneR.innerHTML = ''; marks.innerHTML = ''; sceneryProps = [];
+                const types = ['🌳', '🌲', '🌲', '🌳', '🏠', '🏪', '🏢', '🚦', '🚧', '⛲'];
+                for (let i = 0; i < 15; i++) {
+                    const iconL = types[Math.floor(Math.random() * types.length)];
+                    const iconR = types[Math.floor(Math.random() * types.length)];
+                    const pL = document.createElement('div'), pR = document.createElement('div');
+                    pL.className = 'prop'; pL.innerText = iconL; pL.style.fontSize = '80px';
+                    const offsetL = 250 + Math.random() * 120;
+                    pL.style.right = offsetL + 'px';
+                    pR.className = 'prop'; pR.innerText = iconR; pR.style.fontSize = '80px';
+                    const offsetR = 250 + Math.random() * 120;
+                    pR.style.left = offsetR + 'px';
+                    sceneL.appendChild(pL); sceneR.appendChild(pR);
+                    sceneryProps.push({ elL: pL, elR: pR, y: i * 220 });
+                }
+                for (let i = 0; i < 15; i++) {
+                    const l = document.createElement('div'); l.className = 'lane-mark'; l.style.top = (i * 200) + 'px'; marks.appendChild(l);
+                }
+            }
+
+            function updateRain() {
+                if (currentEnv !== 'rainy') { ctx_p.clearRect(0, 0, cvs.width, cvs.height); return; }
+                if (rainDrops.length < 100) {
+                    rainDrops.push({ x: Math.random() * cvs.width, y: -20, l: 15 + Math.random() * 20, s: 20 + Math.random() * 20 });
+                }
+                ctx_p.clearRect(0, 0, cvs.width, cvs.height);
+                ctx_p.strokeStyle = 'rgba(173, 216, 230, 0.4)';
+                ctx_p.lineWidth = 1;
+                rainDrops.forEach((d, i) => {
+                    ctx_p.beginPath(); ctx_p.moveTo(d.x, d.y); ctx_p.lineTo(d.x - 2, d.y + d.l); ctx_p.stroke();
+                    d.y += d.s; d.x -= 2;
+                    if (d.y > cvs.height) { d.y = -20; d.x = Math.random() * cvs.width; }
+                });
+            }
+
+            function updateScenery(s) {
+                sceneryProps.forEach(p => {
+                    p.y = (p.y + s * 2.5) % 2400;
+                    let visibleY = p.y - 400;
+                    p.elL.style.transform = `translateY(${visibleY}px)`; p.elR.style.transform = `translateY(${visibleY}px)`;
+                });
+                roadPos = (roadPos + s * 2.5) % 400;
+                marks.style.transform = `translateX(-50%) translateY(${roadPos}px)`;
+                Array.from(fx.children).forEach(p => {
+                    let top = parseFloat(p.style.top) || 0;
+                    top += s * 2.5; p.style.top = top + 'px';
+                    if (top > 1200) p.remove();
+                });
+                if (state === 'ACCEL') { truck.classList.add('sway'); spawnEx(); } else truck.classList.remove('sway');
+                if (state === 'BRAKING' && speed > 5) {
+                    truck.classList.add('nose-dive'); spawnSkid(); spawnEx();
+                } else if (state !== 'ACCEL') truck.classList.remove('nose-dive');
+            }
+
+            function spawnEx() {
+                if (fx.childElementCount > 20) return;
+                const h = roadBox.offsetHeight || 900;
+                const spawnY = h - 160;
+                const p = document.createElement('div'); p.className = 'exhaust-p';
+                p.style.width = p.style.height = '15px'; p.style.left = '232px'; p.style.top = spawnY + 'px';
+                fx.appendChild(p); setTimeout(() => p.remove(), 800);
+            }
+
+            function spawnSkid() {
+                if (fx.childElementCount > 40) return;
+                const h = roadBox.offsetHeight || 900;
+                const spawnY = h - 90;
+                const s = document.createElement('div'); s.className = 'skidV10'; s.style.height = '120px'; s.style.width = '24px';
+                s.style.left = '198px'; s.style.top = (spawnY - 120) + 'px'; fx.appendChild(s);
+                const r = s.cloneNode(); r.style.left = '258px'; fx.appendChild(r);
+            }
+
+            initScenery(); loadFame();
+
+            window.setEnv = (type, noReset) => {
+                if (!noReset && (state !== 'IDLE' && state !== 'DONE')) return;
+                currentEnv = type; const d = ENV_DATA[type]; mu = d.mu;
+                nightShade.style.display = d.night ? 'block' : 'none';
+                roadWet.style.opacity = d.weather === 'rainy' ? 0.6 : 0;
+                document.getElementById('scene-l').style.background = d.grass;
+                document.getElementById('scene-r').style.background = d.grass;
+                document.querySelectorAll('.e-btn').forEach(b => {
+                    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${type}'`));
+                });
+                if (!noReset) resetV10();
+            };
+
+            window.setRisk = (lv) => {
+                if (state !== 'IDLE' && state !== 'DONE') return;
+                currentRisk = lv; rushProb = RISK_DATA[lv].rushProb;
+                document.querySelectorAll('.r-btn').forEach(b => {
+                    b.classList.toggle('active', b.getAttribute('onclick').includes(`(${lv})`));
+                });
+                resetV10();
+            };
+
+            function loop() {
+                if (state === 'ACCEL') {
+                    if (speed < 60) speed += 0.8; else state = 'WAIT';
+                } else if (state === 'WAIT') {
+                    if (Math.random() > 0.985) { triggerSig(); }
+                } else if (state === 'REACTING') {
+                    dist -= (speed / 3.6) * 0.016;
+                    if (dist < 1.5 && Math.abs(targetX) < 80) collisionCheck();
+                    if (dist < -20) { state = 'DONE'; stopEng(); setTimeout(showR, 1000); }
+                } else if (state === 'BRAKING') {
+                    let v = speed / 3.6; speed = Math.max(0, (v - (mu * G * 0.016)) * 3.6);
+                    dist -= v * 0.016;
+                    if (speed > 5) playScreech();
+                    if (dist < 10 && Math.abs(targetX) < 80) collisionCheck();
+                    if (speed <= 0) { state = 'DONE'; stopEng(); setTimeout(showR, 1500); }
+                }
+
+                hSpeed.innerText = Math.floor(speed);
+                updateScenery(speed); updEng(speed); updateRain();
+
+                if (state === 'REACTING' || state === 'BRAKING') {
+                    let pTop = 660 - (dist / 40) * (660 - 10);
+                    pZone.style.top = pTop + 'px';
+                    let pScale = 1.3 - (dist / 40) * 0.9;
+                    // 改為對 scaler 進行縮放，不干擾 p-target 的 CSS 動畫
+                    document.getElementById('p-scaler').style.transform = `scale(${pScale})`;
+                }
+                requestAnimationFrame(loop);
+            }
+
+            function triggerSig() {
+                state = 'REACTING'; timeS = performance.now();
+                pZone.style.display = 'flex'; pZone.style.top = '10px'; dist = 40;
+                const targets = ['🚶', '🏃', '🦌', '👨‍🦽', '🐕'];
+                const tEl = document.getElementById('p-target');
+                tEl.innerText = targets[Math.floor(Math.random() * targets.length)];
+                const isRush = Math.random() < rushProb;
+                if (isRush) {
+                    const fromLeft = Math.random() > 0.5;
+                    // 調整為 50% 比例，達成總體 1/3 的虛假威脅率
+                    const stopHalf = Math.random() < 0.5; 
+                    targetX = stopHalf ? (fromLeft ? -120 : 120) : 0;
+                    tEl.style.setProperty('--start-x', (fromLeft ? -400 : 400) + 'px');
+                    tEl.style.setProperty('--target-x', targetX + 'px');
+                    tEl.className = fromLeft ? 'rush-left' : 'rush-right';
+                } else {
+                    targetX = 0; tEl.className = ''; tEl.style.transform = 'none';
+                }
+            }
+
+            function collisionCheck() {
+                state = 'DONE'; playCrash(); stopEng(); setTimeout(showR, 1500);
+            }
+
+            window.resetV10 = () => {
+                state = 'IDLE'; speed = 0; dist = 40; reactMs = 0;
+                hMs.innerText = '0.00'; pZone.style.display = 'none'; resultV10.style.display = 'none';
+                truck.style.transform = 'none'; fx.innerHTML = '';
+                document.querySelectorAll('.t-tail-l, .t-tail-r, .led-bar').forEach(l => l.classList.remove('active'));
+                document.getElementById('fame-input-group').style.display = 'none';
+                hStreak.style.color = "var(--warning)";
+                stopEng();
+            };
+
+            function showR() {
+                if (state !== 'DONE') return;
+                const h = document.getElementById('v10-res-h'), p = document.getElementById('v10-res-p');
+                const dr = (60 / 3.6) * (reactMs / 1000);
+                const db = ((60 / 3.6) ** 2) / (2 * mu * G);
+                const dt = dr + db;
+                const totalDist = 40; const diff = totalDist - dt;
+                const visualDiff = Math.max(0.1, diff - 10);
+
+                let isPass = false;
+                if (diff < 10 && Math.abs(targetX) < 80) {
+                    h.innerText = "發生嚴重碰撞"; h.style.color = '#ef4444';
+                    p.innerText = `煞停不及！致命撞擊！連勝中斷。`;
+                } else if (Math.abs(targetX) >= 80) {
+                    if (reactMs > 0) {
+                        h.innerText = "誤判虛假威脅"; h.style.color = '#ef4444';
+                        p.innerText = "戰術失誤：針對不構成威脅的標的煞車。連勝中斷。";
+                    } else {
+                        h.innerText = "精準識別威脅"; h.style.color = '#10b981';
+                        p.innerText = "判斷精準！成功安全通過。"; isPass = true;
+                    }
+                } else {
+                    h.innerText = "安全穩定煞停"; h.style.color = '#10b981';
+                    p.innerText = `反應時間: ${(reactMs / 1000).toFixed(2)}s | 剩餘冗餘距離: ${visualDiff.toFixed(1)}m`;
+                    isPass = true;
+                }
+
+                if (isPass) {
+                    currentStreak++; 
+                    hStreak.innerText = currentStreak;
+                    hStreak.style.color = "var(--warning)";
+                } else {
+                    // 失敗瞬間：紀錄並重置
+                    tempRecordScore = currentStreak; 
+                    currentStreak = 0; 
+                    hStreak.innerText = '0';
+                    hStreak.style.color = "var(--danger)"; // 提示中斷
+
+                    const list = JSON.parse(localStorage.getItem('v10-hero-board') || '[]');
+                    if (tempRecordScore > 0 && (list.length < 10 || tempRecordScore > list[list.length-1].score)) {
+                        document.getElementById('fame-input-group').style.display = 'flex';
+                    }
+                }
+                resultV10.style.display = 'flex';
+            }
+
+            mBtn.onclick = () => {
+                const c = getCtx(); if (c.state === 'suspended') c.resume();
+                resizeCvs();
+                if (state === 'IDLE') {
+                    // 環境盲測隨機化
+                    const envs = ['sunny', 'rainy', 'night'];
+                    const randEnv = envs[Math.floor(Math.random() * envs.length)];
+                    setEnv(randEnv, true);
+
+                    state = 'ACCEL'; document.querySelectorAll('.led-bar').forEach(l => l.classList.add('active'));
+                    hStreak.style.color = "var(--warning)";
+                }
+                else if (state === 'REACTING') {
+                    state = 'BRAKING'; reactMs = performance.now() - timeS;
+                    hMs.innerText = (reactMs / 1000).toFixed(2);
+                    document.querySelectorAll('.t-tail-l, .t-tail-r').forEach(l => l.classList.add('active'));
+                }
+            };
+            loop();
+        })();
+    </script>
+</body>
+</html>
