@@ -289,7 +289,7 @@
         lastTime = timestamp;
 
         if (state === 'ACCEL') {
-            // 🟢 優化後：基於連勝數穩定爬升 (每贏一次加 5km/h，極限 100)
+            // 🟢 優化後：基於連勝數穩定爬升 (每贏一次加 5km/h，極限 110)
             let targetMaxSpeed = Math.min(60 + (currentStreak * 5), 110);
             if (speed < targetMaxSpeed) {
                 speed += 60 * dt;
@@ -360,7 +360,7 @@
         // 🟢 優化後：達到 10 連勝後，反應時間開始殘酷倒數 [疲勞極限]
         let reactionBuffer = 0.85;
         if (currentStreak >= 10) {
-            // 第 10 關: 0.85s -> 第 11 關: 0.8s -> 第 17 關降至 0.45s 封頂
+            // 第 10 關: 0.85s -> 第 11 關: 0.8s -> 第 22 關降至 0.2s 封頂
             reactionBuffer = Math.max(0.2, 0.85 - ((currentStreak - 9) * 0.05));
             console.log(`[系統警告] 駕駛疲勞攀升，當前強制反應視窗縮減至: ${reactionBuffer.toFixed(2)}s`);
         }
