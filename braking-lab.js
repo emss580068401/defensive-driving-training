@@ -381,8 +381,8 @@
             // 🟢 修復 2：補回決定目標從左邊還是右邊衝出的變數
             const fromLeft = Math.random() > 0.5;
 
-            // 前兩關無假動作，後續慢慢增加，極限 60% [修正方案 B]
-            let falseAlarmRate = currentStreak < 2 ? 0 : Math.min(0.6, 0.15 + (currentStreak * 0.05));
+            // 前兩關無假動作，後續慢慢增加，極限 50% [修正方案 B]
+            let falseAlarmRate = currentStreak < 2 ? 0 : Math.min(0.5, 0.15 + (currentStreak * 0.05));
             
             const stopHalf = Math.random() < falseAlarmRate;
             targetX = stopHalf ? (fromLeft ? -120 : 120) : 0;
