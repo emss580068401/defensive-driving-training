@@ -426,12 +426,12 @@
                             <p>模擬高壓執勤下的器械負荷與大腦認知負荷：</p>
                             <div class="formula-box">
                                 $$\mu_{fade} = \max(0.4, \mu_{base} - (Streak-8) \times 0.02)$$
-                                $$t_{fatigue} = \max(0.45, 0.85 - (Streak-9) \times 0.05)$$
+                                $$t_{fatigue} = \max(0.2, 0.85 - (Streak-9) \times 0.05)$$
                             </div>
                             <ul class="logic-vars">
                                 <li><strong>煞車熱衰竭</strong>：$8$ 連勝後制動力逐關下滑 $2\%$，最低 $0.4$</li>
                                 <li><strong>駕駛疲勞</strong>：$10$ 連勝後反應視窗每關壓縮 $0.05s$</li>
-                                <li><strong>生理極限</strong>：反應緩衝最低限制在極限的 $0.45s$ 封頂</li>
+                                <li><strong>生理極限</strong>：反應緩衝最低限制在極限的 $0.2s$ 封頂</li>
                             </ul>
                         </div>
 
@@ -450,7 +450,7 @@
                                     <tr>
                                         <td>穩定巡航</td>
                                         <td>$1 \sim 7$ 關</td>
-                                        <td>車速穩定攀升，最高 $100 \, km/h$</td>
+                                        <td>車速穩定攀升，最高 $110 \, km/h$</td>
                                     </tr>
                                     <tr>
                                         <td>器械過熱</td>

@@ -58,12 +58,12 @@
     document.addEventListener('mousedown', () => { const c = getCtx(); if (c.state === 'suspended') c.resume(); });
 
     function beep(f, t, vol) { try { const c = getCtx(), o = c.createOscillator(), g = c.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.value = vol; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + t); } catch (e) { } }
-    function playCrash() { 
-        beep(60, 1.2, 1.5); 
+    function playCrash() {
+        beep(60, 1.2, 1.5);
         playGlassBreak(); // 🟢 增加玻璃碎裂音效
-        roadBox.classList.add('crash-flash'); 
+        roadBox.classList.add('crash-flash');
         triggerCollisionVFX();
-        setTimeout(() => roadBox.classList.remove('crash-flash'), 500); 
+        setTimeout(() => roadBox.classList.remove('crash-flash'), 500);
     }
 
     // 🟢 新增：合成玻璃碎裂音效 (利用高頻震盪與白噪音)
@@ -71,7 +71,7 @@
         try {
             const c = getCtx();
             const now = c.currentTime;
-            
+
             // 隨機高頻碎裂聲
             for (let i = 0; i < 5; i++) {
                 const o = c.createOscillator();
@@ -111,16 +111,16 @@
             eng.frequency.setTargetAtTime(30 + s * 1.5, c.currentTime, 0.1);
         } catch (e) { }
     }
-    function stopEng() { 
-        if (eng) { 
+    function stopEng() {
+        if (eng) {
             try {
                 const now = getCtx().currentTime;
-                eng.vGain.gain.setTargetAtTime(0, now, 0.1); 
+                eng.vGain.gain.setTargetAtTime(0, now, 0.1);
                 const oldEng = eng;
                 eng = null; // 立即清除引用，防止下一幀重新啟動
-                setTimeout(() => { if (oldEng) { oldEng.stop(); } }, 200); 
-            } catch(e) {}
-        } 
+                setTimeout(() => { if (oldEng) { oldEng.stop(); } }, 200);
+            } catch (e) { }
+        }
     }
 
     // 🟢 監聽來自父分頁的靜音指令
@@ -129,7 +129,7 @@
             isAudioSilenced = true;
             stopEng();
             const c = getCtx();
-            if (c.state !== 'suspended') c.suspend(); 
+            if (c.state !== 'suspended') c.suspend();
         } else if (e.data.type === 'RESUME_LAB_AUDIO') {
             isAudioSilenced = false;
         }
@@ -222,13 +222,13 @@
         const h = roadBox.offsetHeight || 900;
         const spawnY = h - 160;
         const p = document.createElement('div'); p.className = 'exhaust-p';
-        
+
         // 🟢 修復：動態計算路面中心點
         const roadW = roadBox.offsetWidth;
         const carCenter = roadW / 2;
-        
-        p.style.width = p.style.height = '15px'; 
-        p.style.left = (carCenter - 3) + 'px'; 
+
+        p.style.width = p.style.height = '15px';
+        p.style.left = (carCenter - 3) + 'px';
         p.style.top = spawnY + 'px';
         fx.appendChild(p); setTimeout(() => p.remove(), 800);
     }
@@ -236,24 +236,24 @@
     function spawnSkid() {
         if (fx.childElementCount > 40) return;
         const h = roadBox.offsetHeight || 900;
-        const spawnY = h - 105; 
-        const s = document.createElement('div'); 
-        s.className = 'skidV10'; 
-        s.style.height = '120px'; 
-        s.style.width = '16px'; 
-        
+        const spawnY = h - 105;
+        const s = document.createElement('div');
+        s.className = 'skidV10';
+        s.style.height = '120px';
+        s.style.width = '16px';
+
         // 🟢 修復：動態計算左右輪打滑痕跡的中心偏移
         const roadW = roadBox.offsetWidth;
         const carCenter = roadW / 2;
-        
+
         // 左輪
-        s.style.left = (carCenter - 37) + 'px'; 
-        s.style.top = (spawnY - 120) + 'px'; 
+        s.style.left = (carCenter - 37) + 'px';
+        s.style.top = (spawnY - 120) + 'px';
         fx.appendChild(s);
-        
+
         // 右輪
-        const r = s.cloneNode(); 
-        r.style.left = (carCenter + 21) + 'px'; 
+        const r = s.cloneNode();
+        r.style.left = (carCenter + 21) + 'px';
         fx.appendChild(r);
     }
 
@@ -261,13 +261,13 @@
 
     window.setEnv = (type, noReset) => {
         if (!noReset && (state !== 'IDLE' && state !== 'DONE')) return;
-        currentEnv = type; const d = ENV_DATA[type]; 
-        
+        currentEnv = type; const d = ENV_DATA[type];
+
         // 🟢 核心修復：統一在此處動態結算熱衰減
         // 如果連勝大於 8，計算衰減值；若連勝歸零，衰減值自然歸零，完美恢復初始狀態
         let fadeAmount = currentStreak > 8 ? (currentStreak - 8) * 0.02 : 0;
         mu = Math.max(0.4, d.mu - fadeAmount);
-        
+
         nightShade.style.display = d.night ? 'block' : 'none';
         roadWet.style.opacity = d.weather === 'rainy' ? 0.6 : 0;
         document.getElementById('scene-l').style.background = d.grass;
@@ -292,23 +292,23 @@
             // 🟢 優化後：基於連勝數穩定爬升 (每贏一次加 5km/h，極限 100)
             let targetMaxSpeed = Math.min(60 + (currentStreak * 5), 110);
             if (speed < targetMaxSpeed) {
-                speed += 60 * dt; 
+                speed += 60 * dt;
             } else {
-                speed = targetMaxSpeed; 
+                speed = targetMaxSpeed;
                 state = 'WAIT';
             }
         } else if (state === 'WAIT') {
             if (Math.random() > 0.985) { triggerSig(); }
         } else if (state === 'REACTING') {
             dist -= (speed / 3.6) * dt;
-            
+
             // 🟢 修復：加入 else if，確保撞車與越線不會在同一幀重複觸發
             if (dist < 0 && Math.abs(targetX) < 80) {
-                collisionCheck(); 
-            } else if (dist < -20) { 
-                state = 'DONE'; stopEng(); setTimeout(showR, 1000); 
+                collisionCheck();
+            } else if (dist < -20) {
+                state = 'DONE'; stopEng(); setTimeout(showR, 1000);
             }
-            
+
         } else if (state === 'BRAKING') {
             let v_ms = speed / 3.6;
             const decel = mu * G;
@@ -316,28 +316,28 @@
             speed = next_v_ms * 3.6;
             dist -= v_ms * dt;
             if (speed > 5) playScreech();
-            
+
             // 🟢 修復：加入 else if，防止車速剛好為 0 且撞車時引發兩次 showR
             if (dist < 0 && Math.abs(targetX) < 80) {
-                collisionCheck(); 
-            } else if (speed <= 0) { 
-                state = 'DONE'; stopEng(); setTimeout(showR, 1500); 
+                collisionCheck();
+            } else if (speed <= 0) {
+                state = 'DONE'; stopEng(); setTimeout(showR, 1500);
             }
         }
 
         hSpeed.innerText = Math.floor(speed);
-        
+
         if (state !== 'DONE') {
-            updateScenery(speed, dt); 
-            updEng(speed); 
+            updateScenery(speed, dt);
+            updEng(speed);
         }
         updateRain(dt); // 🟢 修復：殭屍 Bug - 狀態為 DONE 時阻斷捲動與音訊，僅保留雨滴
 
         if (state === 'REACTING' || state === 'BRAKING') {
             const h = document.getElementById('road-box').clientHeight || 800;
             // 採用動態的初始距離作為分母
-            let initialD = window.startDist || 45; 
-            let pTop = (h - 230) * (1 - (dist / initialD)); 
+            let initialD = window.startDist || 45;
+            let pTop = (h - 230) * (1 - (dist / initialD));
             pZone.style.top = pTop + 'px';
 
             // 修正縮放：確保遠處視覺依然合理
@@ -350,9 +350,9 @@
 
     function triggerSig() {
         state = 'REACTING'; timeS = performance.now();
-        pZone.style.display = 'flex'; 
-        pZone.style.top = '10px'; 
-        
+        pZone.style.display = 'flex';
+        pZone.style.top = '10px';
+
         // 🟢 修復 1：補回車速與純煞車距離的物理計算變數
         let v_ms = speed / 3.6;
         let minBrakeDist = (v_ms * v_ms) / (2 * mu * G);
@@ -361,12 +361,12 @@
         let reactionBuffer = 0.85;
         if (currentStreak >= 10) {
             // 第 10 關: 0.85s -> 第 11 關: 0.8s -> 第 17 關降至 0.45s 封頂
-            reactionBuffer = Math.max(0.38, 0.85 - ((currentStreak - 9) * 0.05));
+            reactionBuffer = Math.max(0.2, 0.85 - ((currentStreak - 9) * 0.05));
             console.log(`[系統警告] 駕駛疲勞攀升，當前強制反應視窗縮減至: ${reactionBuffer.toFixed(2)}s`);
         }
-        
+
         // 距離公式改為：純煞車距離 + 反應緩衝 + 隨車速遞增的安全餘裕 (v_ms * 0.2)
-        dist = Math.max(45, minBrakeDist + (v_ms * reactionBuffer) + (v_ms * 0.2)); 
+        dist = Math.max(45, minBrakeDist + (v_ms * reactionBuffer) + (v_ms * 0.2));
 
         // 將生成的初始距離存入全域，供視覺渲染使用
         window.startDist = dist;
@@ -375,18 +375,18 @@
         const targets = ['🚶', '🏃', '🦌', '👨‍🦽', '🐕'];
         const tEl = document.getElementById('p-target');
         tEl.innerText = targets[Math.floor(Math.random() * targets.length)];
-        
+
         const isRush = Math.random() < rushProb;
         if (isRush) {
             // 🟢 修復 2：補回決定目標從左邊還是右邊衝出的變數
             const fromLeft = Math.random() > 0.5;
 
-            // 前兩關無假動作，後續慢慢增加，極限 70% [修正方案 B]
-            let falseAlarmRate = currentStreak < 2 ? 0 : Math.min(0.7, 0.15 + (currentStreak * 0.05));
-            
+            // 前兩關無假動作，後續慢慢增加，極限 50% [修正方案 B]
+            let falseAlarmRate = currentStreak < 2 ? 0 : Math.min(0.5, 0.15 + (currentStreak * 0.05));
+
             const stopHalf = Math.random() < falseAlarmRate;
             targetX = stopHalf ? (fromLeft ? -120 : 120) : 0;
-            
+
             tEl.style.setProperty('--start-x', (fromLeft ? -400 : 400) + 'px');
             tEl.style.setProperty('--target-x', targetX + 'px');
             tEl.className = fromLeft ? 'rush-left' : 'rush-right';
@@ -428,7 +428,7 @@
 
             if (performance.isCrash && Math.abs(targetX) < 80) { // 採用優化後的碰撞門檻
                 h.innerText = "發生嚴重碰撞"; h.style.color = '#ef4444';
-                p.innerText = `煞停不及！致命撞擊！剩餘撞擊距離: 0.0m`; 
+                p.innerText = `煞停不及！致命撞擊！剩餘撞擊距離: 0.0m`;
             } else if (Math.abs(targetX) >= 80) {
                 if (reactMs > 0) {
                     h.innerText = "誤判虛假威脅"; h.style.color = '#ef4444';
@@ -446,7 +446,7 @@
 
         if (isPass) {
             currentStreak++;
-            
+
             // 🟢 修補：煞車熱衰減 (Brake Fade) 邏輯已搬遷至 setEnv
             // 此處僅作為 console 資訊提示 UI，不再直接更動 mu
             if (currentStreak > 8) {
@@ -477,7 +477,7 @@
     let lastClickTime = 0;
     function handleAction() {
         const now = performance.now();
-        if (now - lastClickTime < 500) return; 
+        if (now - lastClickTime < 500) return;
         lastClickTime = now;
 
         const c = getCtx(); if (c.state === 'suspended') c.resume();
@@ -486,21 +486,21 @@
             const envs = ['sunny', 'rainy', 'night'];
             const randEnv = envs[Math.floor(Math.random() * envs.length)];
             setEnv(randEnv, true);
-            state = 'ACCEL'; 
+            state = 'ACCEL';
             document.querySelectorAll('.led-bar').forEach(l => l.classList.add('active'));
-            
+
             // 🟢 修復：起步加速時，確保煞車燈熄滅
             document.querySelectorAll('.t-tail-l, .t-tail-r').forEach(l => l.classList.remove('active'));
-            
+
             hStreak.style.color = "var(--warning)";
         }
-        else if (state === 'REPEAT_BLOCK') return; 
+        else if (state === 'REPEAT_BLOCK') return;
         else if (state === 'ACCEL' || state === 'WAIT') {
             state = 'DONE'; stopEng();
-            
+
             // 🟢 修復：提前踩煞車不會撞碎玻璃，改為播放單純的輪胎打滑聲
-            playScreech(); 
-            
+            playScreech();
+
             showR(true);
         }
         else if (state === 'REACTING') {
@@ -519,7 +519,7 @@
     const handleGlobalTap = (e) => {
         // 確保不是點擊在結算視窗或其子元素
         if (resultV10 && resultV10.style.display === 'flex' && resultV10.contains(e.target)) return;
-        
+
         // 觸發全畫面主邏輯
         if (state === 'IDLE' || state === 'WAIT' || state === 'ACCEL' || state === 'REACTING') {
             // 排除其他實體按鈕點擊，由原生事件處理，避免重複
@@ -542,14 +542,14 @@
     // 🟢 優化後：讀取目標出現瞬間的「快照車速」
     function calculatePerformance(finalDist, reactionTime) {
         // 使用快照車速，若無則降級使用當下 speed (防呆)
-        const snapSpeed = window.startSpeed || speed; 
-        const current_v_ms = snapSpeed / 3.6; 
+        const snapSpeed = window.startSpeed || speed;
+        const current_v_ms = snapSpeed / 3.6;
         const theoreticalBrakingDist = (current_v_ms * current_v_ms) / (2 * mu * G);
         const reactionDist = current_v_ms * (reactionTime / 1000);
-        
+
         // 讀取當局動態生成的 startDist，若無則預設 45
-        const initialDist = window.startDist || 45; 
-        
+        const initialDist = window.startDist || 45;
+
         return {
             isCrash: finalDist <= 0.5,
             margin: Math.max(0, finalDist),
