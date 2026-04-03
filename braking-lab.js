@@ -290,7 +290,7 @@
 
         if (state === 'ACCEL') {
             // 🟢 優化後：基於連勝數穩定爬升 (每贏一次加 5km/h，極限 100)
-            let targetMaxSpeed = Math.min(60 + (currentStreak * 5), 100);
+            let targetMaxSpeed = Math.min(60 + (currentStreak * 5), 110);
             if (speed < targetMaxSpeed) {
                 speed += 60 * dt; 
             } else {
@@ -361,7 +361,7 @@
         let reactionBuffer = 0.85;
         if (currentStreak >= 10) {
             // 第 10 關: 0.85s -> 第 11 關: 0.8s -> 第 17 關降至 0.45s 封頂
-            reactionBuffer = Math.max(0.45, 0.85 - ((currentStreak - 9) * 0.05));
+            reactionBuffer = Math.max(0.38, 0.85 - ((currentStreak - 9) * 0.05));
             console.log(`[系統警告] 駕駛疲勞攀升，當前強制反應視窗縮減至: ${reactionBuffer.toFixed(2)}s`);
         }
         
@@ -381,8 +381,8 @@
             // 🟢 修復 2：補回決定目標從左邊還是右邊衝出的變數
             const fromLeft = Math.random() > 0.5;
 
-            // 前兩關無假動作，後續慢慢增加，極限 50% [修正方案 B]
-            let falseAlarmRate = currentStreak < 2 ? 0 : Math.min(0.5, 0.15 + (currentStreak * 0.05));
+            // 前兩關無假動作，後續慢慢增加，極限 70% [修正方案 B]
+            let falseAlarmRate = currentStreak < 2 ? 0 : Math.min(0.7, 0.15 + (currentStreak * 0.05));
             
             const stopHalf = Math.random() < falseAlarmRate;
             targetX = stopHalf ? (fromLeft ? -120 : 120) : 0;

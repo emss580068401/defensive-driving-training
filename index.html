@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -14,7 +15,8 @@
     <meta property="og:title" content="安全駕駛學習網 — 防禦駕駛訓練平台">
     <meta property="og:description" content="系統化防禦駕駛訓練：影片教學、互動卡片、沙盤推演與自我檢測">
     <meta property="og:type" content="website">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
 
     <!-- Preconnect for CDN resources -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -27,7 +29,8 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <!-- AOS (non-critical, deferred load) -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" media="print" onload="this.media='all'">
 
@@ -45,13 +48,17 @@
     <!-- KaTeX for high-quality math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
 </head>
+
 <body class="dark-theme">
     <!-- Splash Screen -->
     <div id="splash-screen">
         <i class="fas fa-shield-halved splash-icon"></i>
-        <div class="splash-bar"><div class="splash-bar-inner"></div></div>
+        <div class="splash-bar">
+            <div class="splash-bar-inner"></div>
+        </div>
         <span class="splash-text">安駕學習網 載入中…</span>
     </div>
 
@@ -81,22 +88,25 @@
         <header>
             <div class="header-logo">
                 <i class="fas fa-shield-halved text-accent"></i>
-            <div class="title-group">
-                <span class="sub-title">新竹縣政府消防局</span>
-                <h1>安駕<span class="text-accent">學習網</span></h1>
-            </div>
+                <div class="title-group">
+                    <span class="sub-title">新竹縣政府消防局</span>
+                    <h1>安駕<span class="text-accent">學習網</span></h1>
+                </div>
             </div>
             <nav class="desktop-nav" role="tablist" aria-label="主選單">
-                <button class="nav-btn" data-tab="dashboard" role="tab" aria-selected="false" aria-controls="tab-dashboard">
+                <button class="nav-btn" data-tab="dashboard" role="tab" aria-selected="false"
+                    aria-controls="tab-dashboard">
                     <i class="fas fa-chart-line"></i> 成就總覽
                 </button>
-                <button class="nav-btn active" data-tab="skills" role="tab" aria-selected="true" aria-controls="tab-skills">
+                <button class="nav-btn active" data-tab="skills" role="tab" aria-selected="true"
+                    aria-controls="tab-skills">
                     <i class="fas fa-car-side"></i> 駕駛技巧
                 </button>
                 <button class="nav-btn" data-tab="habits" role="tab" aria-selected="false" aria-controls="tab-habits">
                     <i class="fas fa-user-check"></i> 20+10 習慣
                 </button>
-                <button class="nav-btn" data-tab="deployment" role="tab" aria-selected="false" aria-controls="tab-deployment">
+                <button class="nav-btn" data-tab="deployment" role="tab" aria-selected="false"
+                    aria-controls="tab-deployment">
                     <i class="fas fa-map-location-dot"></i> 現場部署
                 </button>
                 <button class="nav-btn" data-tab="lab" role="tab" aria-selected="false" aria-controls="tab-lab">
@@ -123,37 +133,37 @@
                             <canvas id="dashboardChart"></canvas>
                         </div>
                     </div>
-                     <!-- Badges Section -->
-                     <div class="dashboard-card">
-                         <h3>個人榮譽徽章</h3>
-                         <div class="badges-container">
-                              <div class="badge-item" id="badge-video">
-                                  <i class="fas fa-film" style="color: #3b82f6;"></i>
-                                  <div class="badge-label">知識先鋒</div>
-                                  <small>觀看所有教學</small>
-                              </div>
-                              <div class="badge-item" id="badge-habit">
-                                  <i class="fas fa-layer-group" style="color: #10b981;"></i>
-                                  <div class="badge-label">習慣大師</div>
-                                  <small>清空單字卡</small>
-                              </div>
-                              <div class="badge-item" id="badge-deploy">
-                                  <i class="fas fa-chess-knight" style="color: #f59e0b;"></i>
-                                  <div class="badge-label">指揮官</div>
-                                  <small>完成調度沙盤</small>
-                              </div>
-                              <div class="badge-item" id="badge-quiz">
-                                  <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
-                                  <div class="badge-label">防禦專家</div>
-                                  <small>取得測驗證書</small>
-                              </div>
-                              <div class="badge-item" id="badge-lab">
-                                  <i class="fas fa-flask" style="color: #0ea5e9;"></i>
-                                  <div class="badge-label">實驗先鋒</div>
-                                  <small>進入實驗室訓練</small>
-                              </div>
-                         </div>
-                     </div>
+                    <!-- Badges Section -->
+                    <div class="dashboard-card">
+                        <h3>個人榮譽徽章</h3>
+                        <div class="badges-container">
+                            <div class="badge-item" id="badge-video">
+                                <i class="fas fa-film" style="color: #3b82f6;"></i>
+                                <div class="badge-label">知識先鋒</div>
+                                <small>觀看所有教學</small>
+                            </div>
+                            <div class="badge-item" id="badge-habit">
+                                <i class="fas fa-layer-group" style="color: #10b981;"></i>
+                                <div class="badge-label">習慣大師</div>
+                                <small>清空單字卡</small>
+                            </div>
+                            <div class="badge-item" id="badge-deploy">
+                                <i class="fas fa-chess-knight" style="color: #f59e0b;"></i>
+                                <div class="badge-label">指揮官</div>
+                                <small>完成調度沙盤</small>
+                            </div>
+                            <div class="badge-item" id="badge-quiz">
+                                <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+                                <div class="badge-label">防禦專家</div>
+                                <small>取得測驗證書</small>
+                            </div>
+                            <div class="badge-item" id="badge-lab">
+                                <i class="fas fa-flask" style="color: #0ea5e9;"></i>
+                                <div class="badge-label">實驗先鋒</div>
+                                <small>進入實驗室訓練</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -188,7 +198,8 @@
                         <button id="show-basic" class="btn-toggle active">20 項平時行車習慣</button>
                         <button id="show-tactical" class="btn-toggle">10 項緊急車輛習慣</button>
                     </div>
-                    <p style="text-align:center; margin-bottom:20px; color:var(--accent)"><i class="fas fa-hand-pointer"></i> 在卡片上向右滑動代表「已熟記」，向左滑動代表「需複習」。亦可使用鍵盤 ← → 操作。清空牌堆即可獲得徽章！</p>
+                    <p style="text-align:center; margin-bottom:20px; color:var(--accent)"><i
+                            class="fas fa-hand-pointer"></i> 在卡片上向右滑動代表「已熟記」，向左滑動代表「需複習」。亦可使用鍵盤 ← → 操作。清空牌堆即可獲得徽章！</p>
                     <div id="habits-list" class="swipe-deck-container">
                         <!-- Habit swipe cards injected here -->
                     </div>
@@ -216,7 +227,7 @@
                 <div class="linear-deployment-track" id="deployment-track">
                     <!-- 道路虛線 -->
                     <div class="road-dashed-line"></div>
-                    
+
                     <!-- 車流方向指示 -->
                     <div class="flow-indicator">車流方向 <i class="fas fa-chevron-right"></i></div>
 
@@ -232,7 +243,8 @@
                         <div class="distance-label"><span class="dist-val">15</span>m</div>
 
                         <!-- 2. 救災車 (11車-Fend-off) -->
-                        <div class="tactical-node engine-node fent-off" data-info="上游緩衝區：救災車 (Fend-off 斜停)。車頭朝外 15-45 度引導能偏。">
+                        <div class="tactical-node engine-node fent-off"
+                            data-info="上游緩衝區：救災車 (Fend-off 斜停)。車頭朝外 15-45 度引導能偏。">
                             <div class="vehicle-box">救災車</div>
                             <span>上游緩衝</span>
                         </div>
@@ -272,18 +284,25 @@
                 </div>
 
                 <!-- 全新：實戰調度沙盤 -->
-                <div class="challenge-section mt-5" style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 2rem;">
-                    <h3 class="section-subtitle mb-4" style="color:#ef4444;"><i class="fas fa-chess-board"></i> 實戰調度沙盤 <small class="badge" style="background:#b91c1c; color:white;">互動</small></h3>
-                    <p style="margin-bottom: 1rem;"><i class="fas fa-arrows-alt"></i> 測試您的指揮官直覺！請先點選考題，再將車輛「由上往下」拖放至軌道上。放滿且配置完全無誤即過關。</p>
-                    
+                <div class="challenge-section mt-5"
+                    style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 2rem;">
+                    <h3 class="section-subtitle mb-4" style="color:#ef4444;"><i class="fas fa-chess-board"></i> 實戰調度沙盤
+                        <small class="badge" style="background:#b91c1c; color:white;">互動</small></h3>
+                    <p style="margin-bottom: 1rem;"><i class="fas fa-arrows-alt"></i>
+                        測試您的指揮官直覺！請先點選考題，再將車輛「由上往下」拖放至軌道上。放滿且配置完全無誤即過關。</p>
+
                     <div class="deployment-status-toggle" style="gap: 10px; margin-bottom: 2rem;">
-                        <button class="deploy-btn challenge-btn active" data-challenge="arrived" style="background:#ef4444; color:white; border-color:#991b1b;">🚀 考題：警車已抵達</button>
-                        <button class="deploy-btn challenge-btn" data-challenge="pending" style="background:#ef4444; color:white; border-color:#991b1b;">🚀 考題：警車未抵達</button>
+                        <button class="deploy-btn challenge-btn active" data-challenge="arrived"
+                            style="background:#ef4444; color:white; border-color:#991b1b;">🚀 考題：警車已抵達</button>
+                        <button class="deploy-btn challenge-btn" data-challenge="pending"
+                            style="background:#ef4444; color:white; border-color:#991b1b;">🚀 考題：警車未抵達</button>
                     </div>
 
                     <!-- 車輛調度場 -->
-                    <h4 style="margin-bottom: 10px; color: var(--accent);"><i class="fas fa-truck-loading"></i> 車輛調度場 (Vehicle Pool)</h4>
-                    <div id="vehicle-pool" class="vehicle-pool tactical-chain" style="min-height: 120px; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; padding: 15px; border: 2px dashed #475569; border-radius: 12px; background: rgba(30,41,59,0.5); margin-bottom: 2rem; flex-wrap: wrap;">
+                    <h4 style="margin-bottom: 10px; color: var(--accent);"><i class="fas fa-truck-loading"></i> 車輛調度場
+                        (Vehicle Pool)</h4>
+                    <div id="vehicle-pool" class="vehicle-pool tactical-chain"
+                        style="min-height: 120px; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; padding: 15px; border: 2px dashed #475569; border-radius: 12px; background: rgba(30,41,59,0.5); margin-bottom: 2rem; flex-wrap: wrap;">
                         <!-- JS 注入車輛 -->
                     </div>
 
@@ -292,11 +311,12 @@
                     <div class="linear-deployment-track" id="challenge-track-container" style="min-height: 180px;">
                         <div class="road-dashed-line"></div>
                         <div class="flow-indicator">車流方向 <i class="fas fa-chevron-right"></i></div>
-                        <div class="tactical-chain" id="challenge-track" style="min-height: 150px; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px;">
+                        <div class="tactical-chain" id="challenge-track"
+                            style="min-height: 150px; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px;">
                             <!-- 拖曳放置目標 -->
                         </div>
                     </div>
-                    
+
                     <div id="challenge-info-box" class="info-box mt-4" style="border-left-color: #ef4444;">
                         系統就緒。請從上方選擇考題，開始進行沙盤推演！
                     </div>
@@ -304,7 +324,8 @@
 
                 <!-- 戰術核心指南 (Tactical Deep Dive) -->
                 <div class="tactical-deep-dive mt-5">
-                    <h3 class="section-subtitle mb-4"><i class="fas fa-book-reader"></i> 戰術核心指南 (Tactical Deep Dive)</h3>
+                    <h3 class="section-subtitle mb-4"><i class="fas fa-book-reader"></i> 戰術核心指南 (Tactical Deep Dive)
+                    </h3>
                     <div class="deep-dive-grid">
                         <div class="tactical-item" data-aos="fade-up" data-aos-delay="0">
                             <img src="images/deploy/31.png" alt="TIMA 空間解構" loading="lazy">
@@ -345,7 +366,10 @@
                 <div id="quiz-engine" style="display:none;">
                     <div class="quiz-progress-wrapper">
                         <div id="quiz-step-text">第 1 / 5 題</div>
-                        <div class="progress-bar-bg"><div id="quiz-progress-inner" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+                        <div class="progress-bar-bg">
+                            <div id="quiz-progress-inner" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                aria-valuemax="100"></div>
+                        </div>
                     </div>
                     <div id="question-container">
                         <!-- Question content injected here -->
@@ -358,7 +382,8 @@
 
             <section id="tab-lab" class="tab-content" role="tabpanel" aria-labelledby="tab-lab">
                 <div class="section-title">
-                    <h2><i class="fas fa-flask"></i> 煞停距離與規避實驗室 <small class="badge" style="background:#0ea5e9;">V10.4.1 PRO</small></h2>
+                    <h2><i class="fas fa-flask"></i> 煞停距離與規避實驗室 <small class="badge" style="background:#0ea5e9;">V10.4.1
+                            PRO</small></h2>
                     <p>在不同天候與反應延時下，模擬消防車的緊急煞停行為與風險識別。</p>
                 </div>
                 <div class="lab-container">
@@ -528,4 +553,5 @@
     <script src="js/questions.js?v=3"></script>
     <script src="js/app.js?v=3"></script>
 </body>
+
 </html>
