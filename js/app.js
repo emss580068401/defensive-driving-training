@@ -1256,36 +1256,77 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 實驗室抽屜 (Mobile Logic Board Drawer) ---
     function initLabDrawer() {
         var board = document.querySelector('.lab-logic-board');
-        var handle = document.querySelector('.logic-board-handle');
-        if (!board || !handle) return;
+        var trigger = document.querySelector('.drawer-header-sticky');
+        if (!board || !trigger) return;
+
+        // 觸控滑動追蹤（區分 tap / scroll）
+        var touchStartY = 0;
+        var touchMoved = false;
+
+        function openDrawer() {
+            board.classList.add('active');
+            // 展開後讓內容區可滾動，但把手區阻擋
+            board.style.cursor = 'default';
+            trigger.style.cursor = 'pointer';
+            if ('vibrate' in navigator) navigator.vibrate(25);
+            if (typeof AOS !== 'undefined') {
+                setTimeout(function() { AOS.refresh(); }, 400);
+            }
+        }
+
+        function closeDrawer() {
+            board.classList.remove('active');
+            board.scrollTop = 0;
+            board.style.cursor = 'pointer';
+            if ('vibrate' in navigator) navigator.vibrate(15);
+        }
 
         function toggleDrawer(e) {
             if (window.innerWidth > 1080) return;
             e.stopPropagation();
-            var isActive = board.classList.toggle('active');
-            if ("vibrate" in navigator) navigator.vibrate(20);
             playClickSound();
-            if (isActive) {
-                if (typeof AOS !== 'undefined') {
-                    setTimeout(function() { AOS.refresh(); }, 400);
-                }
+            if (board.classList.contains('active')) {
+                closeDrawer();
             } else {
-                board.scrollTop = 0;
+                openDrawer();
             }
         }
 
-        // 修正：將點擊目標擴大到整塊置頂區域 (含背景文字區域)
-        var trigger = document.querySelector('.drawer-header-sticky') || handle;
-        
-        trigger.addEventListener('click', toggleDrawer);
+        // ===== 觸控事件（解決手機 300ms delay 與 scroll 誤判） =====
+        trigger.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+            touchMoved = false;
+        }, { passive: true });
+
+        trigger.addEventListener('touchmove', function(e) {
+            var dy = Math.abs(e.touches[0].clientY - touchStartY);
+            if (dy > 8) touchMoved = true;
+        }, { passive: true });
+
         trigger.addEventListener('touchend', function(e) {
-            e.preventDefault();
+            if (touchMoved) return; // 是滑動，不是 tap，忽略
+            e.preventDefault(); // 阻止 300ms click 延遲
+            toggleDrawer(e);
+        }, { passive: false });
+
+        // ===== 桌面滑鼠點擊 =====
+        trigger.addEventListener('click', function(e) {
+            if (window.innerWidth > 1080) return;
             toggleDrawer(e);
         });
-        trigger.style.cursor = 'pointer';
-        trigger.style.touchAction = 'manipulation';
 
+        // 抽屜收合：點擊 board 之外的地方（僅在展開時有效）
+        document.addEventListener('touchend', function(e) {
+            if (window.innerWidth > 1080) return;
+            if (!board.classList.contains('active')) return;
+            if (!board.contains(e.target)) {
+                closeDrawer();
+            }
+        }, { passive: true });
+
+        trigger.style.touchAction = 'manipulation';
     }
 });
+
 
 

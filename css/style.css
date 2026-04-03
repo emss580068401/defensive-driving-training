@@ -23,6 +23,8 @@ body {
     color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.6;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 /* --- 進度條與音控 --- */
@@ -45,7 +47,7 @@ body {
 
 #music-control {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(70px + env(safe-area-inset-bottom));
     right: 20px;
     z-index: 999;
 }
@@ -178,6 +180,7 @@ header {
     display: flex;
     justify-content: space-around;
     padding: 10px 0;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
     border-top: 1px solid rgba(255,255,255,0.1);
     z-index: 1000;
 }
@@ -814,10 +817,37 @@ button.btn-toggle.active {
     .info-card { padding: 1.2rem; margin-top: 0.8rem; }
     .info-card h3 { font-size: 1.05rem; }
     .info-card p { font-size: 0.9rem; }
+
+    /* Safe area: main 底部加高避開導覽列 */
+    main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+
+    /* 手機導覽列按鈕觸控目標 44px */
+    .mobile-nav-btn { min-height: 44px; padding: 4px 0; }
+
+    /* 選項按鈕觸控目標 */
+    .option-btn { min-height: 52px; padding: 0.9rem 1rem; font-size: 1rem; }
+
+    /* 部署按鈕觸控目標 */
+    .deploy-btn { min-height: 44px; }
+
+    /* btn-toggle 手機版縮小文字避免溢出 */
+    button.btn-toggle { font-size: 0.88rem; padding: 0.65rem 0.5rem; line-height: 1.3; }
 }
 
 @media (min-width: 769px) {
     .mobile-nav { display: none; }
+}
+
+/* --- 極小手機 (375px) --- */
+@media (max-width: 375px) {
+    .header-logo h1 { font-size: 0.92rem; }
+    .sub-title { font-size: 0.6rem; }
+    .section-title h2 { font-size: 1rem; }
+    .option-btn { font-size: 0.88rem; padding: 0.8rem 0.75rem; }
+    .deploy-btn { font-size: 0.78rem; padding: 0.55rem 0.4rem; }
+    button.btn-toggle { font-size: 0.78rem; padding: 0.55rem 0.3rem; }
+    .info-box { font-size: 0.92rem; }
+    .deep-dive-grid { gap: 16px; }
 }
 
 /* --- 戰術核心指南 (Infographics) --- */
@@ -840,7 +870,7 @@ button.btn-toggle.active {
 
 .deep-dive-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
 }
 
@@ -1147,11 +1177,11 @@ button.btn-toggle.active {
 /* --- Back to Top Button --- */
 #back-to-top {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(125px + env(safe-area-inset-bottom));
     left: 20px;
     z-index: 999;
-    width: 45px;
-    height: 45px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 2px solid var(--accent);
     background: var(--card-bg);
@@ -1526,21 +1556,22 @@ button.btn-toggle:focus-visible {
     /* 3. 邏輯板轉化為「抽屜」模式 */
     .lab-logic-board {
         position: fixed;
-        bottom: 60px; /* 避開底部導覽列 */
+        /* 修復：底部高度需加上 safe area，避免被 iPhone 橫條和底部導覽列遮擋 */
+        bottom: calc(60px + env(safe-area-inset-bottom));
         left: 0;
         width: 100%;
-        z-index: 10000; /* 提升層級，解決遮擋判定問題 */
+        z-index: 10000;
         background: rgba(15, 23, 42, 0.98);
         backdrop-filter: blur(25px);
         border-radius: 25px 25px 0 0;
-        border-top: 1px solid var(--accent);
-        /* 終極優化：只露出 30px 把手空間，徹底釋放 10.4 標章區域 */
-        transform: translateY(calc(100% - 30px)); 
+        border-top: 2px solid var(--accent);
+        /* 修復：把手高度擴大至 52px，確保手指可輕鬆觸碰 */
+        transform: translateY(calc(100% - 52px));
         transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         padding: 0 20px 80px 20px;
         overflow-y: auto;
-        /* 限制最大高度為 70vh，確保螢幕頂部 30% 空間始終可見 */
-        max-height: 70vh; 
+        -webkit-overflow-scrolling: touch;
+        max-height: 70vh;
         box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
         cursor: pointer;
     }
@@ -1550,43 +1581,58 @@ button.btn-toggle:focus-visible {
         transform: translateY(0);
     }
 
-    /* 全新：置頂吸附把手區塊 (含背景色遮擋文字) */
+    /* 置頂吸附把手區塊 (修復：增大高度、加強觸控可見性) */
     .drawer-header-sticky {
         display: block;
         position: sticky;
         top: 0;
-        width: calc(100% + 40px); /* 補回父層 padding */
+        width: calc(100% + 40px);
         margin-left: -20px;
-        background: rgba(15, 23, 42, 0.98); /* 必須有背景色遮擋內部文字 */
-        padding: 12px 0 18px 0;
+        background: rgba(15, 23, 42, 0.98);
+        /* 修復：padding 加大，整個把手區都是觸控目標 */
+        padding: 14px 0 22px 0;
         z-index: 20;
         border-radius: 25px 25px 0 0;
+        /* 明確阻止 scroll 向上冒泡，保證 tap 事件正確觸發 */
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(14, 165, 233, 0.15);
     }
 
     /* 把手樣式優化 */
     .logic-board-handle {
         display: block;
-        width: 40px;
-        height: 5px;
-        background: rgba(255, 255, 255, 0.4);
+        width: 48px;
+        height: 6px;
+        background: var(--accent);
         border-radius: 10px;
         margin: 0 auto;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: background 0.2s, transform 0.2s;
         position: relative;
+        box-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
     }
 
     .logic-board-handle::after {
-        content: "物理原理分析";
+        content: "↑ 物理原理分析";
         position: absolute;
-        top: 12px;
+        top: 14px;
         left: 50%;
         transform: translateX(-50%);
         white-space: nowrap;
-        font-size: 0.75rem;
+        font-size: 0.78rem;
         color: var(--accent);
         font-weight: bold;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        text-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
+    }
+
+    /* 展開狀態：把手旋轉 + 改成小訾出 (-↓-) */
+    .lab-logic-board.active .logic-board-handle {
+        transform: scaleX(0.7);
+        background: rgba(255,255,255,0.3);
+    }
+    .lab-logic-board.active .logic-board-handle::after {
+        content: "↓ 收小面板";
     }
 
     .logic-grid { grid-template-columns: 1fr; gap: 1.5rem; }
